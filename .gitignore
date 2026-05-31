@@ -4,6 +4,7 @@ dist-server/
 .env
 .env.*
 !.env.example
+.env*.local
 .vercel/
 .qa-smoke/
 .DS_Store
