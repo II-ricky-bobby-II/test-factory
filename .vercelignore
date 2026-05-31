@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+.qa-smoke/
+node_modules/
+dist/
+dist-server/
+output/
+coverage/
+playwright-report/
+test-results/
+.DS_Store
+*.log

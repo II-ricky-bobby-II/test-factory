@@ -1,0 +1,14 @@
+node_modules/
+dist/
+dist-server/
+.env
+.env.*
+!.env.example
+.vercel/
+.qa-smoke/
+.DS_Store
+coverage/
+playwright-report/
+test-results/
+output/
+*.log
