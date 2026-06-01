@@ -1,0 +1,95 @@
+:root {
+  /* Fonts */
+  --font-display: "Archivo Black", "Anton", system-ui, sans-serif;
+  --font-sans: "Inter", "Geist", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "Space Mono", monospace;
+
+  /* Core colors */
+  --color-charcoal: #181818;
+  --color-blacktop: #111111;
+  --color-field-green: #193C30;
+  --color-paper: #DAD4CE;
+  --color-paper-warm: #D2CCC6;
+  --color-cream: #EFE7D8;
+  --color-ink: #1B1A1A;
+  --color-muted-ink: #5F5B55;
+  --color-chalk: #E6DED2;
+
+  /* Brand accents */
+  --color-brand-red: #C2442D;
+  --color-brand-red-dark: #7A3629;
+  --color-brand-orange: #E58541;
+  --color-brand-green: #0E5A3E;
+  --color-soft-green: #315045;
+
+  /* Lines */
+  --line-soft: rgba(255,255,255,0.08);
+  --line-dark: rgba(0,0,0,0.18);
+
+  /* Radius */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-paper: 0 12px 40px rgba(0,0,0,0.18);
+  --shadow-lift: 0 8px 24px rgba(0,0,0,0.16);
+  --shadow-cutout-red: 10px 10px 0 #C2442D;
+}
+
+.dark-grid {
+  background-color: var(--color-charcoal);
+  background-image:
+    linear-gradient(var(--line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.paper-grid {
+  background-color: var(--color-paper);
+  background-image:
+    linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px);
+  background-size: 34px 34px;
+}
+
+.green-grid {
+  background-color: var(--color-field-green);
+  background-image:
+    linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.paper-card {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  border: 1px solid rgba(0,0,0,0.22);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-paper);
+}
+
+.dark-panel {
+  background: var(--color-blacktop);
+  color: var(--color-chalk);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-lg);
+}
+
+.cutout-red {
+  filter: drop-shadow(10px 10px 0 var(--color-brand-red));
+}
+
+.status-pass {
+  color: var(--color-brand-green);
+}
+
+.status-fail {
+  color: var(--color-brand-red);
+}
+
+.status-warn {
+  color: var(--color-brand-orange);
+}

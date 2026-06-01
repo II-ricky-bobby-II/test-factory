@@ -849,7 +849,7 @@ export function App() {
 
   function renderDashboard() {
     return (
-      <div className="dashboard-shell" aria-label="QA Farm dashboard">
+      <div className="dashboard-shell" aria-label="Test Factory dashboard">
         <section className="control-pane" aria-label="Run setup">
           <section className="pane-section">
             <div className="section-heading">
@@ -1464,7 +1464,7 @@ export function App() {
                     checked={automationForm.enabled}
                     onChange={(event) => setAutomationForm({ ...automationForm, enabled: event.target.checked })}
                   />
-                  <span>Run QA Farm automatically for matching PR previews</span>
+                  <span>Run Test Factory automatically for matching PR previews</span>
                 </label>
                 <Field label="Preview wait timeout" icon={<Clock3 size={16} aria-hidden />}>
                   <input
@@ -1624,7 +1624,7 @@ function LoginScreen({
         <div className="brand-mark">
           <ShieldCheck size={22} aria-hidden />
         </div>
-        <h1>QA Farm</h1>
+        <h1>Test Factory</h1>
         <p className="auth-copy">Owner login keeps runs, credentials, screenshots, and integration settings behind the production session.</p>
         <Field label="Owner password" icon={<KeyRound size={16} aria-hidden />}>
           <input
@@ -1655,8 +1655,8 @@ function PublicHomepage({ onLogin }: { onLogin: (event: MouseEvent<HTMLAnchorEle
             <Bot size={21} aria-hidden />
           </div>
           <div>
-            <strong>QA Farm</strong>
-            <span>Smoke checks for the frontier</span>
+            <strong>Test Factory</strong>
+            <span>Preview QA control room</span>
           </div>
         </div>
         <a className="public-login-link" href="/login" onClick={onLogin}>
@@ -1666,14 +1666,9 @@ function PublicHomepage({ onLogin }: { onLogin: (event: MouseEvent<HTMLAnchorEle
       </header>
 
       <section className="public-hero" aria-labelledby="public-hero-title">
-        <picture className="public-hero-media">
-          <source media="(max-width: 720px)" srcSet="/qa-farm-dashboard-mobile.jpg" />
-          <img src="/qa-farm-dashboard-desktop.jpg" alt="QA Farm dashboard showing a smoke check workspace, run metrics, and browser evidence." />
-        </picture>
-        <div className="public-hero-scrim" aria-hidden />
-        <div className="public-hero-content">
+        <div className="public-hero-copy">
           <p className="eyebrow">Private beta / preview QA</p>
-          <h1 id="public-hero-title">QA Farm</h1>
+          <h1 id="public-hero-title">Test Factory</h1>
           <p>
             AI-assisted smoke checks for preview deployments. Turn prompts, saved user flows, PR context, and live browser evidence into a
             repeatable signal before a release reaches production.
@@ -1684,7 +1679,64 @@ function PublicHomepage({ onLogin }: { onLogin: (event: MouseEvent<HTMLAnchorEle
             <span>PR previews</span>
             <span>Repair prompts</span>
           </div>
+          <div className="public-hero-note" aria-label="Beta access status">
+            <CheckCircle2 size={18} aria-hidden />
+            <span>Owner-protected beta while the run loop, evidence capture, and PR automation harden.</span>
+          </div>
         </div>
+        <aside className="public-product-preview" aria-label="Test Factory product preview">
+          <div className="preview-tabs" aria-hidden>
+            <span className="active">Run 042</span>
+            <span>Report</span>
+            <span>Logs</span>
+          </div>
+          <div className="preview-report-card">
+            <div className="preview-report-header">
+              <span>PROJECT 02 / SMOKE TEST</span>
+              <strong>Smoke Test - Checkout</strong>
+              <em>FAILED</em>
+            </div>
+            <div className="preview-metrics" aria-label="Example run metrics">
+              <div>
+                <strong>87</strong>
+                <span>Passed</span>
+              </div>
+              <div>
+                <strong>3</strong>
+                <span>Failed</span>
+              </div>
+              <div>
+                <strong>5</strong>
+                <span>Warnings</span>
+              </div>
+              <div>
+                <strong>95</strong>
+                <span>Total</span>
+              </div>
+            </div>
+            <div className="preview-evidence-grid">
+              <div className="preview-evidence-card">
+                <span>Browser evidence</span>
+                <strong>Checkout payment step</strong>
+                <p>Element mismatch captured with screenshot, route, selector, and event log.</p>
+              </div>
+              <div className="preview-evidence-card">
+                <span>Repair brief</span>
+                <strong>Ready for implementation agent</strong>
+                <p>Failure context, redacted credentials, and run summary packaged into a focused fix prompt.</p>
+              </div>
+            </div>
+            <div className="preview-log-panel" aria-label="Example run log">
+              <div>
+                <TerminalSquare size={15} aria-hidden />
+                <span>run-log.txt</span>
+              </div>
+              <p><span className="log-pass">PASS</span> Auth smoke passed</p>
+              <p><span className="log-warn">WARN</span> Pricing card shifted 4%</p>
+              <p><span className="log-fail">FAIL</span> Payment button missing expected label</p>
+            </div>
+          </div>
+        </aside>
       </section>
 
       <section className="public-section public-summary" aria-labelledby="summary-heading">
@@ -1694,8 +1746,8 @@ function PublicHomepage({ onLogin }: { onLogin: (event: MouseEvent<HTMLAnchorEle
         </div>
         <div className="public-summary-copy">
           <p>
-            QA Farm launches read-only browser runs against deployment URLs, captures what happened, and returns structured pass/fail output
-            that a builder can act on immediately.
+            Test Factory launches read-only browser runs against deployment URLs, captures what happened, and returns structured pass/fail
+            output that a builder can act on immediately.
           </p>
           <p>
             Today it supports ad hoc smoke prompts, saved projects, reusable test steps, GitHub App PR automation, Vercel preview resolution,
@@ -1704,7 +1756,7 @@ function PublicHomepage({ onLogin }: { onLogin: (event: MouseEvent<HTMLAnchorEle
         </div>
       </section>
 
-      <section className="public-section public-feature-band" aria-label="What QA Farm does">
+      <section className="public-section public-feature-band" aria-label="What Test Factory does">
         <FeatureCard
           icon={<Play size={19} aria-hidden />}
           label="Run"
@@ -1747,7 +1799,7 @@ function PublicHomepage({ onLogin }: { onLogin: (event: MouseEvent<HTMLAnchorEle
           </li>
           <li>
             <strong>Capture evidence.</strong>
-            <span>QA Farm records screenshots, event logs, step status, reports, and warnings without saving passwords.</span>
+            <span>Test Factory records screenshots, event logs, step status, reports, and warnings without saving passwords.</span>
           </li>
           <li>
             <strong>Close the loop.</strong>
@@ -1811,8 +1863,8 @@ function AppTopbar({
           <Bot size={20} aria-hidden />
         </div>
         <div>
-          <h1>QA Farm</h1>
-          <p>Smoke checks for the frontier</p>
+          <h1>Test Factory</h1>
+          <p>Preview QA control room</p>
         </div>
       </div>
 
@@ -2445,7 +2497,7 @@ function appPathForRoute(route: AppRoute): string {
 
 function loadThemePreference(storage: Storage = window.localStorage): ThemePreference {
   const stored = storage.getItem(themeStorageKey);
-  return stored === "light" || stored === "dark" || stored === "system" ? stored : "system";
+  return stored === "light" || stored === "dark" || stored === "system" ? stored : "light";
 }
 
 function loadSelectedProjectId(storage: Storage = window.localStorage): string {
@@ -2495,7 +2547,7 @@ function githubSetupErrorCopy(code: string): string {
   if (code === "missing_installation") return "GitHub did not return an installation ID.";
   if (code === "expired_login") return "GitHub login expired. Start the connection again from this page.";
   if (code === "project_not_found") return "The project for this GitHub connection no longer exists.";
-  if (code === "setup_unmatched") return "GitHub returned an installation, but QA Farm could not match it to exactly one configured project. Check the repository mapping and press Sync.";
+  if (code === "setup_unmatched") return "GitHub returned an installation, but Test Factory could not match it to exactly one configured project. Check the repository mapping and press Sync.";
   if (code === "manifest_missing_code") return "GitHub did not return a manifest setup code.";
   if (code === "manifest_conversion") return "GitHub App registration did not complete.";
   return "GitHub connection did not complete.";

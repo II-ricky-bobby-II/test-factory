@@ -32,14 +32,16 @@ describe("App", () => {
     vi.unstubAllEnvs();
   });
 
-  it("renders the QA Farm public homepage at the root route", () => {
+  it("renders the Test Factory public homepage at the root route", () => {
     window.history.replaceState(null, "", "/");
 
     render(<App />);
 
-    expect(screen.getByRole("heading", { name: "QA Farm" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Test Factory" })).toBeInTheDocument();
     expect(screen.getByText(/AI-assisted smoke checks for preview deployments/i)).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: /QA Farm dashboard/i })).toHaveAttribute("src", "/qa-farm-dashboard-desktop.jpg");
+    expect(screen.getByLabelText("Test Factory product preview")).toHaveTextContent("Smoke Test - Checkout");
+    expect(screen.getByLabelText("Example run metrics")).toHaveTextContent("87");
+    expect(screen.getByLabelText("Example run log")).toHaveTextContent("Payment button missing expected label");
     expect(screen.getByRole("heading", { name: /browser QA operator/i })).toBeInTheDocument();
     expect(screen.getByText(/GitHub App PR automation/i)).toBeInTheDocument();
     expect(screen.queryByLabelText("QA prompt")).not.toBeInTheDocument();
@@ -81,7 +83,7 @@ describe("App", () => {
   it("renders the smoke run setup controls", () => {
     render(<App />);
 
-    expect(screen.getByRole("heading", { name: "QA Farm" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Test Factory" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /dashboard/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /runs/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /visuals/i })).toBeDisabled();
@@ -100,7 +102,7 @@ describe("App", () => {
     expect(screen.queryByLabelText("Project name")).not.toBeInTheDocument();
   });
 
-  it("keeps the QA Farm visual tokens out of generic blue SaaS styling", () => {
+  it("keeps the Test Factory visual tokens out of generic blue SaaS styling", () => {
     const css = readFileSync("src/client/src/styles.css", "utf8");
 
     expect(css).toContain("--color-charcoal: #181818");
@@ -109,6 +111,26 @@ describe("App", () => {
     expect(css).toContain("--color-brand-green: #0e5a3e");
     expect(css).toContain("linear-gradient(var(--line-soft) 1px, transparent 1px)");
     expect(css).not.toMatch(/#2563eb|#60a5fa|generic SaaS/i);
+  });
+
+  it("does not expose the legacy public brand in frontend source", () => {
+    const legacyName = ["QA", "Farm"].join(" ");
+    const frontendSource = [
+      readFileSync("src/client/index.html", "utf8"),
+      readFileSync("src/client/src/App.tsx", "utf8"),
+      readFileSync("src/client/src/styles.css", "utf8")
+    ].join("\n");
+
+    expect(frontendSource).not.toContain(legacyName);
+    expect(frontendSource).not.toContain("qa-farm");
+  });
+
+  it("defaults first-run theme preference to light", async () => {
+    render(<App />);
+
+    await waitFor(() => expect(document.documentElement.dataset.theme).toBe("light"));
+    expect(document.documentElement.dataset.themePreference).toBe("light");
+    expect(window.localStorage.getItem("qa-smoke.theme.v1")).toBe("light");
   });
 
   it("persists an explicit dark theme preference", async () => {
@@ -122,8 +144,9 @@ describe("App", () => {
     expect(window.localStorage.getItem("qa-smoke.theme.v1")).toBe("dark");
   });
 
-  it("resolves the system theme from prefers-color-scheme", async () => {
+  it("resolves an explicit system theme from prefers-color-scheme", async () => {
     vi.stubGlobal("matchMedia", vi.fn(() => mockMediaQueryList(true)));
+    window.localStorage.setItem("qa-smoke.theme.v1", "system");
 
     render(<App />);
 
@@ -343,7 +366,7 @@ describe("App", () => {
     await user.type(screen.getByLabelText("Project ID"), "prj_123");
     await user.type(screen.getByLabelText("Vercel API token"), "vercel-token");
     await user.type(screen.getByLabelText("Automation bypass secret"), "bypass-secret");
-    await user.click(screen.getByLabelText(/run qa farm automatically/i));
+    await user.click(screen.getByLabelText(/run test factory automatically/i));
     await user.click(screen.getByLabelText(/dashboard smoke/i));
     await user.click(screen.getByRole("button", { name: /save settings/i }));
 
