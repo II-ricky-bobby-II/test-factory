@@ -1,4 +1,4 @@
-import { createServer } from "node:http";
+import { createServer, type Server } from "node:http";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { classifyProblemsForReport, executeQaRun, formatRunError } from "../src/server/browserAgent";
 import type { AgentAction, ClaudeActionDecision } from "../src/server/claudeAgent";
@@ -467,7 +467,7 @@ async function startTargetServer(
   if (!address || typeof address === "string") throw new Error("Could not start target server.");
   return {
     url: `http://127.0.0.1:${address.port}`,
-    close: () => new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())))
+    close: () => closeServer(server)
   };
 }
 
@@ -482,7 +482,7 @@ async function startStaticServer(body: string): Promise<{ url: string; close: ()
   if (!address || typeof address === "string") throw new Error("Could not start target server.");
   return {
     url: `http://127.0.0.1:${address.port}`,
-    close: () => new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())))
+    close: () => closeServer(server)
   };
 }
 
@@ -501,7 +501,7 @@ async function startHeaderRecordingServer(): Promise<{ url: string; headers: Rec
   return {
     url: `http://127.0.0.1:${address.port}`,
     headers,
-    close: () => new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())))
+    close: () => closeServer(server)
   };
 }
 
@@ -541,6 +541,12 @@ async function startOverlayServer(): Promise<{ url: string; close: () => Promise
   if (!address || typeof address === "string") throw new Error("Could not start target server.");
   return {
     url: `http://127.0.0.1:${address.port}`,
-    close: () => new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())))
+    close: () => closeServer(server)
   };
+}
+
+function closeServer(server: Server): Promise<void> {
+  server.closeIdleConnections?.();
+  server.closeAllConnections?.();
+  return new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
 }
