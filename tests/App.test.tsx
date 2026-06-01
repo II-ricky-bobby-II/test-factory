@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -21,27 +22,93 @@ describe("App", () => {
     document.documentElement.removeAttribute("data-theme");
     document.documentElement.removeAttribute("data-theme-preference");
     document.documentElement.removeAttribute("style");
-    window.history.replaceState(null, "", "/");
+    window.history.replaceState(null, "", "/app");
     installDefaultFetch();
   });
 
   afterEach(() => {
     cleanup();
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+
+  it("renders the QA Farm public homepage at the root route", () => {
+    window.history.replaceState(null, "", "/");
+
+    render(<App />);
+
+    expect(screen.getByRole("heading", { name: "QA Farm" })).toBeInTheDocument();
+    expect(screen.getByText(/AI-assisted smoke checks for preview deployments/i)).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /QA Farm dashboard/i })).toHaveAttribute("src", "/qa-farm-dashboard-desktop.jpg");
+    expect(screen.getByRole("heading", { name: /browser QA operator/i })).toBeInTheDocument();
+    expect(screen.getByText(/GitHub App PR automation/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText("QA prompt")).not.toBeInTheDocument();
+
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveAccessibleName("Login");
+    expect(links[0]).toHaveAttribute("href", "/login");
+  });
+
+  it("shows owner login at /login and enters the app after sign-in", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    window.history.replaceState(null, "", "/login");
+    const user = userEvent.setup();
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url === "/api/auth/session") {
+        return jsonResponse({ authEnabled: true, configured: true, authenticated: false });
+      }
+      if (url === "/api/auth/login" && init?.method === "POST") {
+        return jsonResponse({ authEnabled: true, configured: true, authenticated: true });
+      }
+      if (url === "/api/projects") return jsonResponse({ projects: [] });
+      if (url === "/api/integrations/status") return jsonResponse(integrationStatusPayload());
+      return jsonResponse({});
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<App />);
+
+    await user.type(await screen.findByLabelText("Owner password"), "owner-pass");
+    await user.click(screen.getByRole("button", { name: /sign in/i }));
+
+    await waitFor(() => expect(window.location.pathname).toBe("/app"));
+    expect(await screen.findByRole("button", { name: /dashboard/i })).toHaveClass("active");
+    expect(fetchMock).toHaveBeenCalledWith("/api/auth/login", expect.objectContaining({ method: "POST" }));
   });
 
   it("renders the smoke run setup controls", () => {
     render(<App />);
 
-    expect(screen.getByRole("heading", { name: "Test Factory" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "QA Farm" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /dashboard/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /runs/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /visuals/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /reports/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /^settings$/i })).toBeInTheDocument();
     expect(screen.getByRole("group", { name: "Theme" })).toBeInTheDocument();
     expect(screen.getByLabelText("Current project")).toHaveTextContent("No project selected");
+    expect(screen.getByRole("heading", { name: /run a smoke check/i })).toBeInTheDocument();
     expect(screen.getByLabelText("Settings name")).toBeInTheDocument();
     expect(screen.getByLabelText("Saved settings")).toBeInTheDocument();
     expect(screen.getByLabelText("Deployment URL")).toBeInTheDocument();
     expect(screen.getByLabelText("QA prompt")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /start test/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /run smoke check/i })).toBeInTheDocument();
+    expect(screen.getByLabelText("Run health")).toHaveTextContent("Latest run");
+    expect(screen.getByLabelText("Run health")).toHaveTextContent("Warnings");
     expect(screen.queryByLabelText("Project name")).not.toBeInTheDocument();
+  });
+
+  it("keeps the QA Farm visual tokens out of generic blue SaaS styling", () => {
+    const css = readFileSync("src/client/src/styles.css", "utf8");
+
+    expect(css).toContain("--color-charcoal: #181818");
+    expect(css).toContain("--color-paper: #dad4ce");
+    expect(css).toContain("--color-brand-red: #c2442d");
+    expect(css).toContain("--color-brand-green: #0e5a3e");
+    expect(css).toContain("linear-gradient(var(--line-soft) 1px, transparent 1px)");
+    expect(css).not.toMatch(/#2563eb|#60a5fa|generic SaaS/i);
   });
 
   it("persists an explicit dark theme preference", async () => {
@@ -105,7 +172,7 @@ describe("App", () => {
     render(<App />);
 
     await user.type(screen.getByLabelText("Deployment URL"), "preview.example.com");
-    await user.click(screen.getByRole("button", { name: /start test/i }));
+    await user.click(screen.getByRole("button", { name: /run smoke check/i }));
 
     const prompt = await screen.findByLabelText("Fix-it prompt");
     expect((prompt as HTMLTextAreaElement).value).toContain("Fix the failing dashboard loader");
@@ -159,7 +226,7 @@ describe("App", () => {
 
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: /projects/i }));
+    await user.click(screen.getByRole("button", { name: /runs/i }));
 
     await user.type(screen.getByLabelText("Project name"), "Admin");
     await user.type(screen.getByLabelText("Project URL"), "admin.example.com");
@@ -267,7 +334,7 @@ describe("App", () => {
 
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: /integrations/i }));
+    await user.click(screen.getByRole("button", { name: /^settings$/i }));
     expect(await screen.findByRole("heading", { name: /admin pr previews/i })).toBeInTheDocument();
     expect(screen.getByText(/could not post or update the github pr comment/i)).toBeInTheDocument();
 
@@ -276,9 +343,9 @@ describe("App", () => {
     await user.type(screen.getByLabelText("Project ID"), "prj_123");
     await user.type(screen.getByLabelText("Vercel API token"), "vercel-token");
     await user.type(screen.getByLabelText("Automation bypass secret"), "bypass-secret");
-    await user.click(screen.getByLabelText(/run test factory automatically/i));
+    await user.click(screen.getByLabelText(/run qa farm automatically/i));
     await user.click(screen.getByLabelText(/dashboard smoke/i));
-    await user.click(screen.getByRole("button", { name: /save integrations/i }));
+    await user.click(screen.getByRole("button", { name: /save settings/i }));
 
     await waitFor(() => expect(savedPayload).toMatchObject({ enabled: true, selectedTestIds: ["test-1"] }));
     expect(savedPayload?.vercelApiToken).toBe("vercel-token");
@@ -367,7 +434,7 @@ describe("App", () => {
 
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: /integrations/i }));
+    await user.click(screen.getByRole("button", { name: /^settings$/i }));
     expect(await screen.findByText("Review campaign metric flow")).toBeInTheDocument();
     expect(screen.getByText("High")).toBeInTheDocument();
     expect(screen.getAllByText("Runnable").length).toBeGreaterThan(0);
@@ -421,7 +488,7 @@ describe("App", () => {
 
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: /integrations/i }));
+    await user.click(screen.getByRole("button", { name: /^settings$/i }));
     expect(await screen.findByRole("heading", { name: /admin pr previews/i })).toBeInTheDocument();
 
     await user.type(screen.getByLabelText("Project ID"), "prj_123");
@@ -475,7 +542,7 @@ describe("App", () => {
 
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: /integrations/i }));
+    await user.click(screen.getByRole("button", { name: /^settings$/i }));
     expect(await screen.findByRole("heading", { name: /admin pr previews/i })).toBeInTheDocument();
 
     await user.type(screen.getByLabelText("Project ID"), "prj_123");
@@ -543,7 +610,7 @@ describe("App", () => {
 
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: /integrations/i }));
+    await user.click(screen.getByRole("button", { name: /^settings$/i }));
     expect(await screen.findByRole("heading", { name: /admin pr previews/i })).toBeInTheDocument();
 
     await user.type(screen.getByLabelText("Team ID"), "team_123");
@@ -586,7 +653,7 @@ describe("App", () => {
 
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: /integrations/i }));
+    await user.click(screen.getByRole("button", { name: /^settings$/i }));
 
     const setupLink = await screen.findByRole("link", { name: /create github app/i });
     expect(setupLink).toHaveAttribute("href", "/api/github/manifest/new?projectId=project-1");

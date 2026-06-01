@@ -30,7 +30,7 @@ import {
   Wand2,
   XCircle
 } from "lucide-react";
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
 import {
   createProject,
   createProjectTest,
@@ -141,6 +141,7 @@ const emptyPrAutomationForm: PrAutomationFormState = {
 
 const stepTypes: ReusableStepType[] = ["act", "assert", "login", "screenshot"];
 type ThemePreference = "light" | "dark" | "system";
+type PageRoute = "home" | "login" | "app";
 type AppRoute = "dashboard" | "projects" | "integrations";
 const themeStorageKey = "qa-smoke.theme.v1";
 const selectedProjectStorageKey = "qa-smoke.selected-project.v1";
@@ -155,6 +156,7 @@ function isProductionBundle(): boolean {
 }
 
 export function App() {
+  const [pageRoute, setPageRoute] = useState<PageRoute>(() => pageRouteFromLocation());
   const [route, setRoute] = useState<AppRoute>(() => routeFromLocation());
   const [projects, setProjects] = useState<Project[]>([]);
   const [tests, setTests] = useState<TestDefinition[]>([]);
@@ -208,7 +210,10 @@ export function App() {
   const selectedProfile = profiles.find((profile) => profile.id === selectedProfileId);
 
   useEffect(() => {
-    const onPopState = () => setRoute(routeFromLocation());
+    const onPopState = () => {
+      setPageRoute(pageRouteFromLocation());
+      setRoute(routeFromLocation());
+    };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
@@ -224,6 +229,12 @@ export function App() {
   }, []);
 
   useEffect(() => applyThemePreference(themePreference), [themePreference]);
+
+  useEffect(() => {
+    if (pageRoute === "login" && authSession?.authenticated) {
+      navigate("dashboard");
+    }
+  }, [authSession?.authenticated, pageRoute]);
 
   useEffect(() => {
     if (!run?.id) return undefined;
@@ -323,6 +334,7 @@ export function App() {
       setLoginPassword("");
       await refreshProjects();
       await refreshIntegrationStatus();
+      navigate("dashboard");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Could not sign in.");
     } finally {
@@ -337,6 +349,7 @@ export function App() {
     setTests([]);
     setRun(undefined);
     setEvents([]);
+    navigateToLogin();
   }
 
   async function refreshTests(projectId: string, preferredTestId?: string) {
@@ -382,11 +395,24 @@ export function App() {
   }
 
   function navigate(nextRoute: AppRoute) {
-    const nextPath = nextRoute === "projects" ? "/projects" : nextRoute === "integrations" ? "/integrations" : "/";
+    const nextPath = appPathForRoute(nextRoute);
     if (window.location.pathname !== nextPath) {
       window.history.pushState(null, "", nextPath);
     }
+    setPageRoute("app");
     setRoute(nextRoute);
+  }
+
+  function navigateToLogin(event?: MouseEvent<HTMLAnchorElement>) {
+    event?.preventDefault();
+    if (authSession?.authenticated) {
+      navigate("dashboard");
+      return;
+    }
+    if (window.location.pathname !== "/login") {
+      window.history.pushState(null, "", "/login");
+    }
+    setPageRoute("login");
   }
 
   function syncAdHocWithProject(project: Project, force: boolean) {
@@ -823,13 +849,13 @@ export function App() {
 
   function renderDashboard() {
     return (
-      <div className="dashboard-shell" aria-label="Test Factory dashboard">
+      <div className="dashboard-shell" aria-label="QA Farm dashboard">
         <section className="control-pane" aria-label="Run setup">
           <section className="pane-section">
             <div className="section-heading">
               <div>
-                <p className="eyebrow">Ad hoc run</p>
-                <h2>Run a smoke test</h2>
+                <p className="eyebrow">Smoke run</p>
+                <h2>Run a smoke check</h2>
               </div>
             </div>
 
@@ -934,7 +960,7 @@ export function App() {
                 <ModeToggle value={adHocForm.agentMode} onChange={(agentMode) => updateAdHocForm({ agentMode })} label="Agent mode" />
                 <button className="primary-button" type="submit" disabled={isStarting}>
                   {isStarting ? <Loader2 className="spin" size={17} aria-hidden /> : <Play size={17} aria-hidden />}
-                  Start test
+                  Run smoke check
                 </button>
               </div>
             </form>
@@ -958,12 +984,12 @@ export function App() {
 
   function renderProjects() {
     return (
-      <div className="projects-shell" aria-label="Project management">
-        <section className="project-directory-pane" aria-label="Projects">
+      <div className="projects-shell" aria-label="Runs">
+        <section className="project-directory-pane" aria-label="Run targets">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Projects</p>
-              <h2>{selectedProject ? selectedProject.name : "New project"}</h2>
+              <p className="eyebrow">Runs</p>
+              <h2>{selectedProject ? selectedProject.name : "New run target"}</h2>
             </div>
             <button type="button" className="icon-button" onClick={() => selectProject("")} title="New project">
               <Plus size={17} aria-hidden />
@@ -1273,11 +1299,11 @@ export function App() {
 
   function renderIntegrations() {
     return (
-      <div className="integrations-shell" aria-label="Integrations">
+      <div className="integrations-shell" aria-label="Settings">
         <section className="integration-main">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Integrations</p>
+              <p className="eyebrow">Settings</p>
               <h2>{selectedProject ? `${selectedProject.name} PR previews` : "Select a project"}</h2>
             </div>
             <button type="button" className="secondary-button" onClick={() => void refreshPrRuns()} disabled={!selectedProject}>
@@ -1438,7 +1464,7 @@ export function App() {
                     checked={automationForm.enabled}
                     onChange={(event) => setAutomationForm({ ...automationForm, enabled: event.target.checked })}
                   />
-                  <span>Run Test Factory automatically for matching PR previews</span>
+                  <span>Run QA Farm automatically for matching PR previews</span>
                 </label>
                 <Field label="Preview wait timeout" icon={<Clock3 size={16} aria-hidden />}>
                   <input
@@ -1469,7 +1495,7 @@ export function App() {
                 </div>
                 <button className="primary-button wide" type="submit" disabled={isIntegrationSaving}>
                   {isIntegrationSaving ? <Loader2 className="spin" size={17} aria-hidden /> : <Save size={17} aria-hidden />}
-                  Save integrations
+                  Save settings
                 </button>
               </section>
             </form>
@@ -1535,6 +1561,10 @@ export function App() {
     );
   }
 
+  if (pageRoute === "home") {
+    return <PublicHomepage onLogin={navigateToLogin} />;
+  }
+
   if (!authSession) {
     return (
       <main className="app-root auth-root">
@@ -1547,29 +1577,14 @@ export function App() {
 
   if (!authSession.authenticated) {
     return (
-      <main className="app-root auth-root">
-        <form className="auth-panel" onSubmit={onLogin}>
-          <div className="brand-mark">
-            <ShieldCheck size={22} aria-hidden />
-          </div>
-          <h1>Test Factory</h1>
-          <Field label="Owner password" icon={<KeyRound size={16} aria-hidden />}>
-            <input
-              value={loginPassword}
-              onChange={(event) => setLoginPassword(event.target.value)}
-              type="password"
-              autoComplete="current-password"
-              autoFocus
-            />
-          </Field>
-          <button className="primary-button" type="submit" disabled={isLoggingIn || !authSession.configured}>
-            {isLoggingIn ? <Loader2 className="spin" size={17} aria-hidden /> : <ShieldCheck size={17} aria-hidden />}
-            Sign in
-          </button>
-          {!authSession.configured ? <div className="error-banner">Owner login is not configured.</div> : null}
-          {error ? <div className="error-banner">{error}</div> : null}
-        </form>
-      </main>
+      <LoginScreen
+        loginPassword={loginPassword}
+        isLoggingIn={isLoggingIn}
+        authConfigured={authSession.configured}
+        error={error}
+        onLogin={onLogin}
+        onPasswordChange={setLoginPassword}
+      />
     );
   }
 
@@ -1585,6 +1600,192 @@ export function App() {
       />
       {route === "projects" ? renderProjects() : route === "integrations" ? renderIntegrations() : renderDashboard()}
     </main>
+  );
+}
+
+function LoginScreen({
+  loginPassword,
+  isLoggingIn,
+  authConfigured,
+  error,
+  onLogin,
+  onPasswordChange
+}: {
+  loginPassword: string;
+  isLoggingIn: boolean;
+  authConfigured: boolean;
+  error?: string;
+  onLogin: (event: FormEvent) => void;
+  onPasswordChange: (password: string) => void;
+}) {
+  return (
+    <main className="app-root auth-root">
+      <form className="auth-panel" onSubmit={onLogin}>
+        <div className="brand-mark">
+          <ShieldCheck size={22} aria-hidden />
+        </div>
+        <h1>QA Farm</h1>
+        <p className="auth-copy">Owner login keeps runs, credentials, screenshots, and integration settings behind the production session.</p>
+        <Field label="Owner password" icon={<KeyRound size={16} aria-hidden />}>
+          <input
+            value={loginPassword}
+            onChange={(event) => onPasswordChange(event.target.value)}
+            type="password"
+            autoComplete="current-password"
+            autoFocus
+          />
+        </Field>
+        <button className="primary-button" type="submit" disabled={isLoggingIn || !authConfigured}>
+          {isLoggingIn ? <Loader2 className="spin" size={17} aria-hidden /> : <ShieldCheck size={17} aria-hidden />}
+          Sign in
+        </button>
+        {!authConfigured ? <div className="error-banner">Owner login is not configured.</div> : null}
+        {error ? <div className="error-banner">{error}</div> : null}
+      </form>
+    </main>
+  );
+}
+
+function PublicHomepage({ onLogin }: { onLogin: (event: MouseEvent<HTMLAnchorElement>) => void }) {
+  return (
+    <main className="public-root">
+      <header className="public-nav" aria-label="Homepage">
+        <div className="public-brand">
+          <div className="brand-mark">
+            <Bot size={21} aria-hidden />
+          </div>
+          <div>
+            <strong>QA Farm</strong>
+            <span>Smoke checks for the frontier</span>
+          </div>
+        </div>
+        <a className="public-login-link" href="/login" onClick={onLogin}>
+          <ShieldCheck size={16} aria-hidden />
+          Login
+        </a>
+      </header>
+
+      <section className="public-hero" aria-labelledby="public-hero-title">
+        <picture className="public-hero-media">
+          <source media="(max-width: 720px)" srcSet="/qa-farm-dashboard-mobile.jpg" />
+          <img src="/qa-farm-dashboard-desktop.jpg" alt="QA Farm dashboard showing a smoke check workspace, run metrics, and browser evidence." />
+        </picture>
+        <div className="public-hero-scrim" aria-hidden />
+        <div className="public-hero-content">
+          <p className="eyebrow">Private beta / preview QA</p>
+          <h1 id="public-hero-title">QA Farm</h1>
+          <p>
+            AI-assisted smoke checks for preview deployments. Turn prompts, saved user flows, PR context, and live browser evidence into a
+            repeatable signal before a release reaches production.
+          </p>
+          <div className="public-hero-tags" aria-label="Core capabilities">
+            <span>Prompt runs</span>
+            <span>Reusable checks</span>
+            <span>PR previews</span>
+            <span>Repair prompts</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="public-section public-summary" aria-labelledby="summary-heading">
+        <div className="public-section-heading">
+          <p className="eyebrow">Executive summary</p>
+          <h2 id="summary-heading">A browser QA operator for teams shipping through previews.</h2>
+        </div>
+        <div className="public-summary-copy">
+          <p>
+            QA Farm launches read-only browser runs against deployment URLs, captures what happened, and returns structured pass/fail output
+            that a builder can act on immediately.
+          </p>
+          <p>
+            Today it supports ad hoc smoke prompts, saved projects, reusable test steps, GitHub App PR automation, Vercel preview resolution,
+            screenshot evidence, live logs, and fix-it prompts generated from failure context.
+          </p>
+        </div>
+      </section>
+
+      <section className="public-section public-feature-band" aria-label="What QA Farm does">
+        <FeatureCard
+          icon={<Play size={19} aria-hidden />}
+          label="Run"
+          title="Launch smoke checks from plain language"
+          body="Describe the user flow, provide a preview URL and optional runtime credentials, then watch the browser agent step through the surface."
+        />
+        <FeatureCard
+          icon={<ListChecks size={19} aria-hidden />}
+          label="Reuse"
+          title="Save project-specific checks"
+          body="Turn important flows into structured steps so the same release path can be rerun without replanning from scratch."
+        />
+        <FeatureCard
+          icon={<GitPullRequest size={19} aria-hidden />}
+          label="Automate"
+          title="Attach checks to PR previews"
+          body="Use GitHub and Vercel integrations to find the right preview deployment, run selected checks, and write the result back to the pull request."
+        />
+        <FeatureCard
+          icon={<Wand2 size={19} aria-hidden />}
+          label="Repair"
+          title="Convert failures into fix prompts"
+          body="Package redacted failure evidence, relevant repo context, and the failed run summary into a prompt for the implementation agent."
+        />
+      </section>
+
+      <section className="public-section public-workflow" aria-labelledby="workflow-heading">
+        <div className="public-section-heading">
+          <p className="eyebrow">Run loop</p>
+          <h2 id="workflow-heading">From preview URL to release signal.</h2>
+        </div>
+        <ol>
+          <li>
+            <strong>Target the preview.</strong>
+            <span>Use a deployment URL directly or let PR automation resolve the matching Vercel preview.</span>
+          </li>
+          <li>
+            <strong>Exercise the flow.</strong>
+            <span>Claude plans and selects browser actions for ad hoc runs; saved checks execute their persisted steps.</span>
+          </li>
+          <li>
+            <strong>Capture evidence.</strong>
+            <span>QA Farm records screenshots, event logs, step status, reports, and warnings without saving passwords.</span>
+          </li>
+          <li>
+            <strong>Close the loop.</strong>
+            <span>Passed runs become confidence; failed runs produce focused repair prompts and PR-visible status.</span>
+          </li>
+        </ol>
+      </section>
+
+      <section className="public-section public-integration-grid" aria-label="Integrations and safeguards">
+        <IntegrationCard icon={<Github size={19} aria-hidden />} title="GitHub App" body="Checks, comments, PR context, installation mapping, and app-only draft tests." />
+        <IntegrationCard icon={<Globe2 size={19} aria-hidden />} title="Vercel previews" body="Preview discovery by commit and branch, with optional deployment-protection bypass handling." />
+        <IntegrationCard icon={<Bot size={19} aria-hidden />} title="Claude + browser agent" body="Prompt planning, action selection, test draft generation, and failure repair briefing." />
+        <IntegrationCard icon={<ShieldCheck size={19} aria-hidden />} title="Owner-protected data" body="Production auth, CSRF checks, encrypted integration secrets, and redacted run persistence." />
+      </section>
+    </main>
+  );
+}
+
+function FeatureCard({ icon, label, title, body }: { icon: ReactNode; label: string; title: string; body: string }) {
+  return (
+    <article className="public-feature-card">
+      <div>
+        {icon}
+        <span>{label}</span>
+      </div>
+      <h3>{title}</h3>
+      <p>{body}</p>
+    </article>
+  );
+}
+
+function IntegrationCard({ icon, title, body }: { icon: ReactNode; title: string; body: string }) {
+  return (
+    <article className="public-integration-card">
+      <div>{icon}</div>
+      <h3>{title}</h3>
+      <p>{body}</p>
+    </article>
   );
 }
 
@@ -1610,8 +1811,8 @@ function AppTopbar({
           <Bot size={20} aria-hidden />
         </div>
         <div>
-          <h1>Test Factory</h1>
-          <p>Prompt-driven preview validation</p>
+          <h1>QA Farm</h1>
+          <p>Smoke checks for the frontier</p>
         </div>
       </div>
 
@@ -1631,7 +1832,15 @@ function AppTopbar({
         </button>
         <button type="button" className={route === "projects" ? "nav-button active" : "nav-button"} onClick={() => onNavigate("projects")}>
           <FolderOpen size={16} aria-hidden />
-          Projects
+          Runs
+        </button>
+        <button type="button" className="nav-button nav-button-disabled" disabled title="Visual diff workspace coming from run artifacts">
+          <Eye size={16} aria-hidden />
+          Visuals
+        </button>
+        <button type="button" className="nav-button nav-button-disabled" disabled title="Report archive coming from completed smoke runs">
+          <TerminalSquare size={16} aria-hidden />
+          Reports
         </button>
         <button
           type="button"
@@ -1639,7 +1848,7 @@ function AppTopbar({
           onClick={() => onNavigate("integrations")}
         >
           <GitPullRequest size={16} aria-hidden />
-          Integrations
+          Settings
         </button>
         <ThemeToggle value={themePreference} onChange={onThemeChange} />
         {onLogout ? (
@@ -1668,16 +1877,30 @@ function RunWorkspace({
   copiedPromptRunId: string;
   onCopyFixPrompt: (text: string) => Promise<void>;
 }) {
+  const passedSteps = run?.steps.filter((step) => step.status === "passed").length || 0;
+  const failedSteps = run?.steps.filter((step) => step.status === "failed").length || 0;
+  const warningCount = orderedEvents.filter((event) => event.level === "warning").length;
+  const screenshotCount = Math.max(orderedEvents.filter((event) => event.screenshot).length, latestImage ? 1 : 0);
+  const runMeta = run ? `${run.request.agentMode} / ${run.request.maxActions} max actions` : "Awaiting deployment";
+
   return (
     <section className="workspace" aria-label="Run results">
       <header className="workspace-header">
         <div>
-          <p className="eyebrow">Current run</p>
-          <h2>{run ? statusCopy(run.status) : "Ready"}</h2>
+          <p className="eyebrow">Latest run</p>
+          <h2>{run ? statusCopy(run.status) : "READY"}</h2>
           {run?.request.testTitle ? <p className="run-subtitle">{run.request.testTitle}</p> : null}
         </div>
         {run ? <StatusPill status={run.status} /> : null}
       </header>
+
+      <div className="run-metric-grid" aria-label="Run health">
+        <MetricCard label="Latest run" value={run ? statusCopy(run.status) : "READY"} meta={runMeta} tone={run?.status || "queued"} />
+        <MetricCard label="Passed" value={String(passedSteps)} meta={`${run?.steps.length || 0} total steps`} tone="passed" />
+        <MetricCard label="Failures" value={String(failedSteps)} meta={failedSteps ? "Needs repair prompt" : "No failed steps"} tone={failedSteps ? "failed" : "passed"} />
+        <MetricCard label="Visuals" value={String(screenshotCount)} meta={screenshotCount === 1 ? "Screenshot captured" : "Screenshots captured"} tone={screenshotCount ? "running" : "queued"} />
+        <MetricCard label="Warnings" value={String(warningCount)} meta={warningCount ? "Review agent log" : "No warnings"} tone={warningCount ? "warning" : "passed"} />
+      </div>
 
       <div className="browser-and-steps">
         <div className="browser-panel">
@@ -1808,6 +2031,26 @@ function SummaryItem({ label, value, href }: { label: string; value: string; hre
         <strong>{value}</strong>
       )}
     </div>
+  );
+}
+
+function MetricCard({
+  label,
+  value,
+  meta,
+  tone
+}: {
+  label: string;
+  value: string;
+  meta: string;
+  tone: PublicQaRun["status"] | "warning";
+}) {
+  return (
+    <article className={`metric-card ${tone}`}>
+      <span>{label}</span>
+      <strong>{value}</strong>
+      <p>{meta}</p>
+    </article>
   );
 }
 
@@ -2107,10 +2350,10 @@ function StatusPill({ status }: { status: PublicQaRun["status"] }) {
 }
 
 function statusCopy(status: PublicQaRun["status"]) {
-  if (status === "passed") return "Passed";
-  if (status === "failed") return "Failed";
-  if (status === "running") return "Running";
-  return "Queued";
+  if (status === "passed") return "PASSED";
+  if (status === "failed") return "FAILED";
+  if (status === "running") return "RUNNING";
+  return "QUEUED";
 }
 
 function draftStatusCopy(status: PrTestRecommendationSet["status"]): string {
@@ -2183,8 +2426,21 @@ function mergeEvents(events: QaEvent[], next: QaEvent) {
 }
 
 function routeFromLocation(pathname: string = window.location.pathname): AppRoute {
-  if (pathname.startsWith("/integrations")) return "integrations";
-  return pathname.startsWith("/projects") ? "projects" : "dashboard";
+  if (pathname.startsWith("/app/settings") || pathname.startsWith("/integrations")) return "integrations";
+  if (pathname.startsWith("/app/runs") || pathname.startsWith("/projects")) return "projects";
+  return "dashboard";
+}
+
+function pageRouteFromLocation(pathname: string = window.location.pathname): PageRoute {
+  if (pathname === "/" || pathname === "") return "home";
+  if (pathname.startsWith("/login")) return "login";
+  return "app";
+}
+
+function appPathForRoute(route: AppRoute): string {
+  if (route === "projects") return "/app/runs";
+  if (route === "integrations") return "/app/settings";
+  return "/app";
 }
 
 function loadThemePreference(storage: Storage = window.localStorage): ThemePreference {
@@ -2239,7 +2495,7 @@ function githubSetupErrorCopy(code: string): string {
   if (code === "missing_installation") return "GitHub did not return an installation ID.";
   if (code === "expired_login") return "GitHub login expired. Start the connection again from this page.";
   if (code === "project_not_found") return "The project for this GitHub connection no longer exists.";
-  if (code === "setup_unmatched") return "GitHub returned an installation, but Test Factory could not match it to exactly one configured project. Check the repository mapping and press Sync.";
+  if (code === "setup_unmatched") return "GitHub returned an installation, but QA Farm could not match it to exactly one configured project. Check the repository mapping and press Sync.";
   if (code === "manifest_missing_code") return "GitHub did not return a manifest setup code.";
   if (code === "manifest_conversion") return "GitHub App registration did not complete.";
   return "GitHub connection did not complete.";
