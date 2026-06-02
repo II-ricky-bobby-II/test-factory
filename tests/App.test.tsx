@@ -38,18 +38,51 @@ describe("App", () => {
     render(<App />);
 
     expect(screen.getByRole("heading", { name: "Test Factory" })).toBeInTheDocument();
+    expect(screen.getAllByRole("img", { name: /Test Factory.*logo/i })).toHaveLength(2);
     expect(screen.getByText(/AI-assisted smoke checks for preview deployments/i)).toBeInTheDocument();
     expect(screen.getByLabelText("Test Factory product preview")).toHaveTextContent("Smoke Test - Checkout");
     expect(screen.getByLabelText("Example run metrics")).toHaveTextContent("87");
     expect(screen.getByLabelText("Example run log")).toHaveTextContent("Payment button missing expected label");
     expect(screen.getByRole("heading", { name: /browser QA operator/i })).toBeInTheDocument();
     expect(screen.getByText(/GitHub App PR automation/i)).toBeInTheDocument();
+    expect(screen.getByLabelText("Homepage footer")).toHaveTextContent("Private beta");
+    expect(screen.getByLabelText("Homepage footer")).toHaveTextContent("Contact details pending");
     expect(screen.queryByLabelText("QA prompt")).not.toBeInTheDocument();
 
     const links = screen.getAllByRole("link");
     expect(links).toHaveLength(1);
     expect(links[0]).toHaveAccessibleName("Login");
     expect(links[0]).toHaveAttribute("href", "/login");
+  });
+
+  it("switches the public product preview tabs", async () => {
+    window.history.replaceState(null, "", "/");
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    const runTab = screen.getByRole("tab", { name: "Run 042" });
+    const reportTab = screen.getByRole("tab", { name: "Report" });
+    const logsTab = screen.getByRole("tab", { name: "Logs" });
+
+    expect(runTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByText("Smoke Test - Checkout")).toBeInTheDocument();
+
+    await user.click(reportTab);
+
+    expect(reportTab).toHaveAttribute("aria-selected", "true");
+    expect(runTab).toHaveAttribute("aria-selected", "false");
+    expect(screen.getByText("Report Needs Review")).toBeInTheDocument();
+    expect(screen.getByLabelText("Failed test rows")).toHaveTextContent("/checkout/payment");
+    expect(screen.getByText(/Do not ship until checkout CTA is confirmed/i)).toBeInTheDocument();
+
+    await user.click(logsTab);
+
+    expect(logsTab).toHaveAttribute("aria-selected", "true");
+    expect(reportTab).toHaveAttribute("aria-selected", "false");
+    expect(screen.getByText("Terminal Receipt")).toBeInTheDocument();
+    expect(screen.getByLabelText("Agent execution log")).toHaveTextContent("GitHub check updated");
+    expect(screen.getByLabelText("Log environment metadata")).toHaveTextContent("Claude browser agent");
   });
 
   it("shows owner login at /login and enters the app after sign-in", async () => {

@@ -9,6 +9,7 @@ import {
   Clock3,
   ExternalLink,
   Eye,
+  Factory,
   FolderOpen,
   Github,
   GitPullRequest,
@@ -142,6 +143,7 @@ const emptyPrAutomationForm: PrAutomationFormState = {
 const stepTypes: ReusableStepType[] = ["act", "assert", "login", "screenshot"];
 type ThemePreference = "light" | "dark" | "system";
 type PageRoute = "home" | "login" | "app";
+type PublicPreviewTab = "run" | "report" | "logs";
 type AppRoute = "dashboard" | "projects" | "integrations";
 const themeStorageKey = "qa-smoke.theme.v1";
 const selectedProjectStorageKey = "qa-smoke.selected-project.v1";
@@ -1603,6 +1605,15 @@ export function App() {
   );
 }
 
+function TestFactoryMark({ label = "Test Factory logo" }: { label?: string }) {
+  return (
+    <div className="test-factory-mark" role="img" aria-label={label}>
+      <Factory size={23} aria-hidden />
+      <CheckCircle2 className="test-factory-mark-check" size={13} aria-hidden />
+    </div>
+  );
+}
+
 function LoginScreen({
   loginPassword,
   isLoggingIn,
@@ -1621,9 +1632,7 @@ function LoginScreen({
   return (
     <main className="app-root auth-root">
       <form className="auth-panel" onSubmit={onLogin}>
-        <div className="brand-mark">
-          <ShieldCheck size={22} aria-hidden />
-        </div>
+        <TestFactoryMark />
         <h1>Test Factory</h1>
         <p className="auth-copy">Owner login keeps runs, credentials, screenshots, and integration settings behind the production session.</p>
         <Field label="Owner password" icon={<KeyRound size={16} aria-hidden />}>
@@ -1651,9 +1660,7 @@ function PublicHomepage({ onLogin }: { onLogin: (event: MouseEvent<HTMLAnchorEle
     <main className="public-root">
       <header className="public-nav" aria-label="Homepage">
         <div className="public-brand">
-          <div className="brand-mark">
-            <Bot size={21} aria-hidden />
-          </div>
+          <TestFactoryMark />
           <div>
             <strong>Test Factory</strong>
             <span>Preview QA control room</span>
@@ -1684,59 +1691,7 @@ function PublicHomepage({ onLogin }: { onLogin: (event: MouseEvent<HTMLAnchorEle
             <span>Owner-protected beta while the run loop, evidence capture, and PR automation harden.</span>
           </div>
         </div>
-        <aside className="public-product-preview" aria-label="Test Factory product preview">
-          <div className="preview-tabs" aria-hidden>
-            <span className="active">Run 042</span>
-            <span>Report</span>
-            <span>Logs</span>
-          </div>
-          <div className="preview-report-card">
-            <div className="preview-report-header">
-              <span>PROJECT 02 / SMOKE TEST</span>
-              <strong>Smoke Test - Checkout</strong>
-              <em>FAILED</em>
-            </div>
-            <div className="preview-metrics" aria-label="Example run metrics">
-              <div>
-                <strong>87</strong>
-                <span>Passed</span>
-              </div>
-              <div>
-                <strong>3</strong>
-                <span>Failed</span>
-              </div>
-              <div>
-                <strong>5</strong>
-                <span>Warnings</span>
-              </div>
-              <div>
-                <strong>95</strong>
-                <span>Total</span>
-              </div>
-            </div>
-            <div className="preview-evidence-grid">
-              <div className="preview-evidence-card">
-                <span>Browser evidence</span>
-                <strong>Checkout payment step</strong>
-                <p>Element mismatch captured with screenshot, route, selector, and event log.</p>
-              </div>
-              <div className="preview-evidence-card">
-                <span>Repair brief</span>
-                <strong>Ready for implementation agent</strong>
-                <p>Failure context, redacted credentials, and run summary packaged into a focused fix prompt.</p>
-              </div>
-            </div>
-            <div className="preview-log-panel" aria-label="Example run log">
-              <div>
-                <TerminalSquare size={15} aria-hidden />
-                <span>run-log.txt</span>
-              </div>
-              <p><span className="log-pass">PASS</span> Auth smoke passed</p>
-              <p><span className="log-warn">WARN</span> Pricing card shifted 4%</p>
-              <p><span className="log-fail">FAIL</span> Payment button missing expected label</p>
-            </div>
-          </div>
-        </aside>
+        <PublicProductPreview />
       </section>
 
       <section className="public-section public-summary" aria-labelledby="summary-heading">
@@ -1814,7 +1769,217 @@ function PublicHomepage({ onLogin }: { onLogin: (event: MouseEvent<HTMLAnchorEle
         <IntegrationCard icon={<Bot size={19} aria-hidden />} title="Claude + browser agent" body="Prompt planning, action selection, test draft generation, and failure repair briefing." />
         <IntegrationCard icon={<ShieldCheck size={19} aria-hidden />} title="Owner-protected data" body="Production auth, CSRF checks, encrypted integration secrets, and redacted run persistence." />
       </section>
+      <PublicFooter />
     </main>
+  );
+}
+
+const publicPreviewTabs: Array<{ id: PublicPreviewTab; label: string }> = [
+  { id: "run", label: "Run 042" },
+  { id: "report", label: "Report" },
+  { id: "logs", label: "Logs" }
+];
+
+function PublicProductPreview() {
+  const [activeTab, setActiveTab] = useState<PublicPreviewTab>("run");
+  const activePanelId = `public-preview-panel-${activeTab}`;
+
+  return (
+    <aside className="public-product-preview" aria-label="Test Factory product preview">
+      <div className="preview-tabs" role="tablist" aria-label="Preview content">
+        {publicPreviewTabs.map((tab) => {
+          const selected = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              className={selected ? "active" : undefined}
+              role="tab"
+              id={`public-preview-tab-${tab.id}`}
+              aria-selected={selected}
+              aria-controls={`public-preview-panel-${tab.id}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+      <div
+        id={activePanelId}
+        className={`preview-report-card preview-${activeTab}-panel`}
+        role="tabpanel"
+        aria-labelledby={`public-preview-tab-${activeTab}`}
+      >
+        {activeTab === "run" ? <PreviewRunPanel /> : null}
+        {activeTab === "report" ? <PreviewReportPanel /> : null}
+        {activeTab === "logs" ? <PreviewLogsPanel /> : null}
+      </div>
+    </aside>
+  );
+}
+
+function PreviewRunPanel() {
+  return (
+    <>
+      <div className="preview-report-header">
+        <span>PROJECT 02 / SMOKE TEST</span>
+        <strong>Smoke Test - Checkout</strong>
+        <em>FAILED</em>
+      </div>
+      <div className="preview-metrics" aria-label="Example run metrics">
+        <div>
+          <strong>87</strong>
+          <span>Passed</span>
+        </div>
+        <div>
+          <strong>3</strong>
+          <span>Failed</span>
+        </div>
+        <div>
+          <strong>5</strong>
+          <span>Warnings</span>
+        </div>
+        <div>
+          <strong>95</strong>
+          <span>Total</span>
+        </div>
+      </div>
+      <div className="preview-evidence-grid">
+        <div className="preview-evidence-card">
+          <span>Browser evidence</span>
+          <strong>Checkout payment step</strong>
+          <p>Element mismatch captured with screenshot, route, selector, and event log.</p>
+        </div>
+        <div className="preview-evidence-card">
+          <span>Repair brief</span>
+          <strong>Ready for implementation agent</strong>
+          <p>Failure context, redacted credentials, and run summary packaged into a focused fix prompt.</p>
+        </div>
+      </div>
+      <div className="preview-log-panel" aria-label="Example run log">
+        <div>
+          <TerminalSquare size={15} aria-hidden />
+          <span>run-log.txt</span>
+        </div>
+        <p><span className="log-pass">PASS</span> Auth smoke passed</p>
+        <p><span className="log-warn">WARN</span> Pricing card shifted 4%</p>
+        <p><span className="log-fail">FAIL</span> Payment button missing expected label</p>
+      </div>
+    </>
+  );
+}
+
+function PreviewReportPanel() {
+  return (
+    <>
+      <div className="preview-report-header">
+        <span>RELEASE READINESS / CHECKOUT</span>
+        <strong>Report Needs Review</strong>
+        <em className="preview-status-warn">ACTION NEEDED</em>
+      </div>
+      <div className="preview-report-summary" aria-label="Release readiness summary">
+        <div>
+          <span>Result</span>
+          <strong>Blocked</strong>
+          <p>Payment CTA mismatch is still visible on the preview route.</p>
+        </div>
+        <div>
+          <span>PR writeback</span>
+          <strong>Posted</strong>
+          <p>GitHub check, sticky comment, and repair prompt are ready for review.</p>
+        </div>
+      </div>
+      <div className="preview-table" aria-label="Failed test rows">
+        <div className="preview-table-row preview-table-head">
+          <span>Check</span>
+          <span>Status</span>
+          <span>Evidence</span>
+        </div>
+        <div className="preview-table-row">
+          <span>/checkout/payment</span>
+          <strong>FAILED</strong>
+          <span>selector + screenshot</span>
+        </div>
+        <div className="preview-table-row">
+          <span>/checkout/summary</span>
+          <strong>WARN</strong>
+          <span>visual shift 4%</span>
+        </div>
+      </div>
+      <div className="preview-artifact-strip" aria-label="Report artifacts">
+        <span>report.html</span>
+        <span>screenshots.zip</span>
+        <span>repair-prompt.md</span>
+      </div>
+      <div className="preview-stamp">Do not ship until checkout CTA is confirmed.</div>
+    </>
+  );
+}
+
+function PreviewLogsPanel() {
+  return (
+    <>
+      <div className="preview-report-header">
+        <span>RUN 042 / BROWSER AGENT</span>
+        <strong>Terminal Receipt</strong>
+        <em>FAILED</em>
+      </div>
+      <div className="preview-log-panel preview-log-panel-expanded" aria-label="Agent execution log">
+        <div>
+          <TerminalSquare size={15} aria-hidden />
+          <span>agent-run.log</span>
+        </div>
+        <p><span className="log-time">10:24:01</span> Opened Vercel preview for branch checkout-fix.</p>
+        <p><span className="log-pass">PASS</span> Auth smoke passed with saved owner-safe credentials.</p>
+        <p><span className="log-pass">PASS</span> Cart summary rendered with expected total.</p>
+        <p><span className="log-warn">WARN</span> Pricing card shifted 4% against baseline.</p>
+        <p><span className="log-fail">FAIL</span> Payment button missing expected label.</p>
+        <p><span className="log-time">10:25:18</span> GitHub check updated and repair brief generated.</p>
+      </div>
+      <div className="preview-log-meta" aria-label="Log environment metadata">
+        <span>Chrome 126</span>
+        <span>Desktop</span>
+        <span>Vercel preview</span>
+        <span>Claude browser agent</span>
+      </div>
+    </>
+  );
+}
+
+function PublicFooter() {
+  return (
+    <footer className="public-footer" aria-label="Homepage footer">
+      <div className="public-footer-brand">
+        <TestFactoryMark label="Test Factory footer logo" />
+        <div>
+          <strong>Test Factory</strong>
+          <span>Private beta QA signal for preview deployments.</span>
+        </div>
+      </div>
+      <div className="public-footer-grid">
+        <div>
+          <span className="eyebrow">Build state</span>
+          <p>Private beta. Owner access only while smoke runs, saved checks, PR automation, and report handoff mature.</p>
+        </div>
+        <div>
+          <span className="eyebrow">Capabilities</span>
+          <p>Prompt runs, reusable checks, screenshots, logs, visual warnings, reports, and repair prompts.</p>
+        </div>
+        <div>
+          <span className="eyebrow">Integrations</span>
+          <p>GitHub App, Vercel previews, Claude browser agent, encrypted project secrets, and PR-visible status.</p>
+        </div>
+        <div>
+          <span className="eyebrow">Security posture</span>
+          <p>Owner login, CSRF checks, redacted run persistence, and no public access to stored credentials.</p>
+        </div>
+      </div>
+      <div className="public-footer-bottom">
+        <span>(c) 2026 Test Factory</span>
+        <span>Contact details pending.</span>
+      </div>
+    </footer>
   );
 }
 
@@ -1859,9 +2024,7 @@ function AppTopbar({
   return (
     <header className="app-topbar">
       <div className="topbar-brand">
-        <div className="brand-mark">
-          <Bot size={20} aria-hidden />
-        </div>
+        <TestFactoryMark />
         <div>
           <h1>Test Factory</h1>
           <p>Preview QA control room</p>
