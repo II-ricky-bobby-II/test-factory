@@ -1,8 +1,8 @@
-# Test Factory Design System
+# The Local Cafe Design System
 
-This folder is the source of truth for Test Factory website and web-app design direction.
+This folder is the source of truth for The Local Cafe website and web-app design direction.
 
-The system translates the supplied Behance branding packet into Test Factory's product domain: an editorial QA lab for preview deployments. It uses large PP Migra-style serif typography, tiny widely tracked Gilroy-style labels, off-white and black fields, taupe and clay accents, visible construction grids, asymmetric evidence collages, and quiet functional UI.
+The system is a refined editorial cafe identity: Himalayan hospitality carried from Sikkim into Delhi through food, coffee, tea, culture, and quiet ritual. It uses large PP Migra-style serif typography, tiny widely tracked Gilroy-style labels, off-white and black fields, taupe and clay accents, warm documentary imagery, visible construction grids, asymmetric collage layouts, and quiet functional UI.
 
 ## Required Read Order
 
@@ -22,16 +22,15 @@ The system translates the supplied Behance branding packet into Test Factory's p
 
 ## Non-Negotiables
 
-- Test Factory is the canonical product name. Do not introduce or preserve `QA Farm` in user-facing UI, page titles, aria labels, tests, or docs except when explicitly describing legacy reference material.
-- Test Factory must feel editorial, precise, restrained, and operational, not like a generic SaaS dashboard.
-- Use the normalized web specifications in this folder and the Behance branding packet. Do not invent source measurements from Behance.
+- The Local Cafe must feel editorial, warm, culturally rooted, and restrained.
+- Use the normalized web specifications in this folder and the branding pack. Do not invent source measurements from Behance.
 - Use off-white, black, taupe, clay, coffee, saffron, leaf, and deep-blue as a controlled palette.
 - Preserve the contrast between huge display serif type and tiny uppercase utility labels.
-- Use CSS grid for page layouts, dashboard layouts, report layouts, and editorial evidence collages.
+- Use CSS grid for page layouts, menu layouts, and editorial collages.
 - Use flex only for nav, CTA groups, metadata rows, and horizontal story rails.
-- Use real product imagery and evidence artifacts: browser screenshots, report pages, PR status cards, terminal logs, deployment metadata, and UI capture strips.
-- Keep app flows practical: smoke-run setup, project management, PR automation, integration settings, run results, empty, error, and confirmation states must stay clear and accessible.
+- Use warm documentary imagery: cafe architecture, food, coffee and tea ritual, people, textiles, cultural details, and occasional Himalayan context.
+- Keep app flows practical: menu, cart, checkout, reservation, account, empty, error, and confirmation states must stay clear and accessible.
 
 ## Deprecated Direction
 
-The previous rugged QA control-room direction, folder-tab navigation, red cutout shadows, green grid pages, generic dashboard styling, cartoon or novelty motifs, and old reference boards are deprecated for Test Factory. See `deprecated-references.md` for the complete list.
+The previous dark QA control-room direction, folder-tab navigation, red cutout shadows, green grid pages, generic dashboard styling, cartoon or novelty motifs, and old reference boards are deprecated for The Local Cafe. See `deprecated-references.md` for the complete list.

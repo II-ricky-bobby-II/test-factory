@@ -28,9 +28,9 @@ Use an 8 px baseline and 96-192 px editorial section spacing.
 Use CSS grid for:
 
 - page layout
+- menu layout
 - item detail layout
-- dashboard/report layout
-- project setup and integration splits
+- reservation and checkout splits
 - image collages
 - editorial section composition
 
@@ -39,6 +39,7 @@ Use flex only for:
 - header navigation
 - CTA groups
 - metadata rows
+- menu chips
 - quantity controls
 - horizontal story rails
 
@@ -46,7 +47,7 @@ Use flex only for:
 
 ### Paper Editorial
 
-Use for page introductions, evidence cards, story text, project details, and forms.
+Use for page introductions, menu cards, story text, reservation details, and forms.
 
 - Background: `paper` or `warm-white`.
 - Border: optional 1 px `grid-line`.
@@ -64,7 +65,7 @@ Use for manifesto, footer, campaign impact moments, and selected content cards.
 
 ### Taupe Card
 
-Use for text-only campaign cards, report highlights, and small content blocks.
+Use for text-only campaign cards, menu highlights, and small content blocks.
 
 - Background: `taupe`.
 - Text: `warm-white`.
@@ -91,7 +92,7 @@ Use only in social, journal, or campaign sections.
 ### Full-Bleed Photo Hero
 
 - `min-height: 100svh`.
-- Full-bleed product evidence or screenshot collage.
+- Full-bleed cafe exterior/interior image.
 - Overlay: black gradient at 20-45% depending on contrast.
 - Header absolute or transparent at top.
 - Large centered wordmark or bottom-left lockup.
@@ -122,7 +123,7 @@ Use only in social, journal, or campaign sections.
 
 ### Functional Split Page
 
-Use for project setup, integration settings, login, account, and run detail.
+Use for reservation, checkout, account, and order detail.
 
 - Left 5 columns: image, story, summary, or context.
 - Right 5-6 columns: form or task UI.

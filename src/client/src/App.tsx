@@ -1716,9 +1716,6 @@ function PublicHomepage({ onLogin }: { onLogin: (event: MouseEvent<HTMLAnchorEle
         <PublicProductPreview />
       </section>
 
-      <PublicManifesto />
-      <PublicEvidenceEditorial />
-
       <section className="public-section public-summary" aria-labelledby="summary-heading">
         <div className="public-section-heading">
           <p className="eyebrow">Executive summary</p>
@@ -1796,59 +1793,6 @@ function PublicHomepage({ onLogin }: { onLogin: (event: MouseEvent<HTMLAnchorEle
       </section>
       <PublicFooter />
     </main>
-  );
-}
-
-function PublicManifesto() {
-  return (
-    <section className="public-manifesto" aria-labelledby="manifesto-heading">
-      <div className="manifesto-meta">
-        <span>Preview deployments</span>
-        <span>Browser evidence</span>
-        <span>PR writeback</span>
-      </div>
-      <div className="manifesto-copy">
-        <p className="eyebrow">Operating thesis</p>
-        <h2 id="manifesto-heading">Ship decisions should come from evidence, not optimism.</h2>
-        <p>
-          Test Factory turns a preview URL into a readable release receipt: what the browser did, what changed, what failed,
-          and what an implementation agent needs next.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-function PublicEvidenceEditorial() {
-  return (
-    <section className="public-section public-evidence-editorial" aria-labelledby="evidence-heading">
-      <div className="evidence-intro">
-        <p className="eyebrow">Evidence board</p>
-        <h2 id="evidence-heading">A product proof collage for every preview.</h2>
-      </div>
-      <div className="evidence-collage">
-        <figure className="evidence-image-card">
-          <img src="/assets/testfactory-live-home-evidence.png" alt="Captured Test Factory homepage and report preview" />
-          <figcaption>
-            <span>Live capture</span>
-            <strong>Production surface, captured after deploy.</strong>
-          </figcaption>
-        </figure>
-        <article className="evidence-type-card evidence-type-card-dark">
-          <span>Report receipt</span>
-          <strong>Run 042 flagged the checkout payment CTA.</strong>
-          <p>Selector, screenshot, route, and event log are preserved as one reviewable artifact.</p>
-        </article>
-        <article className="evidence-type-card evidence-type-card-clay">
-          <span>Repair prompt</span>
-          <strong>Failure context packaged for the implementation pass.</strong>
-        </article>
-        <article className="evidence-type-card evidence-type-card-paper">
-          <span>PR signal</span>
-          <strong>GitHub check posted. Sticky comment updated. Preview evidence attached.</strong>
-        </article>
-      </div>
-    </section>
   );
 }
 

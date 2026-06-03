@@ -6,8 +6,8 @@ Typography is the primary brand carrier. The system depends on contrast between 
 
 | Role | Preferred | Fallback | Use |
 |---|---|---|---|
-| Display serif | PP Migra Regular | Cormorant Garamond, Bodoni 72, Didot, Georgia | Logo, hero, large page titles, report headlines |
-| Display italic | PP Migra Italics | Cormorant Garamond Italic, Bodoni 72, Didot Italic, Georgia Italic | Emphasis words, poetic subheads, evidence notes |
+| Display serif | PP Migra Regular | Cormorant Garamond, Bodoni 72, Didot, Georgia | Logo, hero, large page titles, menu categories |
+| Display italic | PP Migra Italics | Cormorant Garamond Italic, Bodoni 72, Didot Italic, Georgia Italic | Emphasis words, poetic subheads, menu notes |
 | Utility sans | Gilroy Semibold | Inter, Helvetica Neue, Arial | Eyebrows, nav, captions, metadata, buttons |
 | Body sans | Gilroy Regular | Inter, Helvetica Neue, Arial | Body copy, forms, checkout, account UI |
 | Script accent | Microsoft Himalaya | serif | Non-critical cultural accents only |
@@ -86,7 +86,7 @@ Review your order.
 
 ## Italic Rules
 
-Use italics for one emphasis word, subheads, campaign cards, or short evidence notes. Do not use italics for navigation, form labels, statuses, error messages, logs, or long paragraphs.
+Use italics for one emphasis word, subheads, campaign cards, or short menu notes. Do not use italics for navigation, form labels, prices, error messages, or long paragraphs.
 
 ## Body Copy Rules
 
