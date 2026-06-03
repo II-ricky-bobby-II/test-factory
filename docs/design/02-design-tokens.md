@@ -10,14 +10,14 @@ Use these tokens for color, typography, spacing, radius, borders, shadows, layou
 | `charcoal` | `#171411` | Softer dark surfaces and overlays |
 | `espresso` | `#21170F` | Warm dark brown-black panels |
 | `paper` | `#F7F3EA` | Primary page background |
-| `warm-white` | `#FFFCF5` | Cards, menus, forms, reversed panels |
+| `warm-white` | `#FFFCF5` | Cards, forms, report panels, reversed panels |
 | `mist` | `#ECEBE7` | Neutral grey background |
 | `grid-line` | `#D8D3C8` | Fine grid, dividers, construction lines |
 | `taupe` | `#918A7C` | Muted cards, labels, secondary surfaces |
 | `clay` | `#D65A2B` | Launch, active, focus, primary accent |
 | `saffron` | `#E5B72E` | Flower or highlight accent |
-| `coffee` | `#9B6436` | Coffee, wood, hover warmth |
-| `cream` | `#E7D0AE` | Beverage and food warmth |
+| `coffee` | `#9B6436` | Warm hover, warning-adjacent emphasis |
+| `cream` | `#E7D0AE` | Warm neutral contrast and dark-panel text |
 | `leaf` | `#405733` | Natural green, success state |
 | `deep-blue` | `#223D66` | Textile-inspired accent |
 | `error` | `#9E2F1C` | Error state |
@@ -74,7 +74,7 @@ Use 24 micro columns on desktop, 16 on tablet, and 8 on mobile when aligning col
 
 | Token | Value | Use |
 |---|---:|---|
-| `radius-none` | `0` | Editorial cards, images, menu panels |
+| `radius-none` | `0` | Editorial cards, images, report panels |
 | `radius-xs` | `4px` | Small controls only |
 | `radius-sm` | `8px` | Form controls, chips |
 | `radius-md` | `12px` | Social frames, modals |
@@ -89,7 +89,7 @@ Use hairline borders and grid lines before shadows.
 
 - Hairline: `1px solid var(--border-default)`.
 - Grid border: `1px solid var(--border-grid)`.
-- Dotted menu guide: `1px dotted rgba(5,5,5,0.22)`.
+- Dotted metadata guide: `1px dotted rgba(5,5,5,0.22)`.
 - Inverse border: `1px solid rgba(255,252,245,0.42)`.
 - Default shadow: none.
 - Soft shadow: `0 18px 40px rgba(5,5,5,0.10)` only for floating social cards.

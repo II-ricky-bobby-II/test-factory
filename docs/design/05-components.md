@@ -26,7 +26,7 @@ Mobile header:
 - Height: 64-72 px.
 - Padding: 20 px.
 - Menu trigger: "MENU" label or two-line icon.
-- Mobile menu: full-screen paper or black panel with large serif links and small metadata.
+- Mobile nav: full-screen paper or black panel with large serif links and small metadata.
 
 ## Buttons And Links
 
@@ -70,32 +70,32 @@ Social story card:
 - Aspect ratio: 1:1, 4:5, or 9:16.
 - Radius: 12-16 px.
 - Border: 1 px white at 60-80%.
-- Never use for forms, checkout, menu item cards, or primary navigation.
+- Never use for forms, evidence item cards, or primary navigation.
 
-## Menu Components
+## Evidence Components
 
-Menu category rows:
+Evidence category rows:
 
 - Number plus category name.
 - PP Migra-style serif, 72-112 px desktop, 40-56 px mobile.
 - Border-top: 1 px grid line.
 - Optional hover thumbnail.
 
-Menu item card:
+Evidence item card:
 
-- Image, category label, item name, dietary tag, description, price, add/select action.
+- Screenshot, category label, evidence name, status tag, description, timestamp, select/open action.
 - Warm-white or transparent on grid.
 - Image: square or 4:5.
 - Padding: 24-48 px.
 - Border: optional 1 px grid line.
 
-Dietary tags:
+Status tags:
 
-- Text-first labels: VEG, NON-VEG, SPICY, CONTAINS DAIRY, GLUTEN, NUTS.
+- Text-first labels: PASS, FAIL, WARN, QUEUED, RUNNING, BLOCKED.
 - Tiny uppercase sans, 0.16-0.24em tracking.
 - Do not rely on color alone.
 
-Quantity selector:
+Step selector:
 
 - Thin bordered control.
 - 40-44 px height.
@@ -104,9 +104,9 @@ Quantity selector:
 
 ## Forms
 
-Use for reservation, contact, checkout, and account.
+Use for login, ad hoc runs, projects, saved checks, integrations, and account.
 
-- Label: sentence case for app clarity; uppercase labels only on editorial reservation pages.
+- Label: sentence case for app clarity; uppercase labels only on editorial landing sections.
 - Input height: 48-56 px.
 - Border: 1 px `border-default` or underline.
 - Background: warm-white or transparent.
@@ -137,18 +137,18 @@ Accordions:
 
 ## Cart, Modals, Toasts
 
-Cart drawer:
+Evidence drawer:
 
 - Width: 420-520 px desktop.
 - Background: paper or warm-white.
 - Header: small logo/label plus close.
-- Items: compact list with square thumbnails.
-- Footer: subtotal, taxes, primary action.
+- Items: compact list with square evidence thumbnails.
+- Footer: result summary, copy/open actions.
 
-Reservation confirmation:
+Run confirmation:
 
 - Width: 520-680 px.
-- Optional cloud mark.
+- Optional Test Factory mark.
 - Serif headline 40-56 px.
 - Details in clean rows.
 
@@ -164,14 +164,14 @@ Use a small cloud mark, a display serif headline, clear body copy, and one direc
 
 Examples:
 
-- Cart: "Your table is still empty." / "Add something warm from the menu."
-- Reservations: "No upcoming visits." / "Reserve your next slow morning."
-- 404: "This path wandered off." / "Return to the menu, reservations, or cafe stories."
+- Project: "No project selected." / "Create a project or run an ad hoc preview check."
+- Runs: "No evidence yet." / "Start a smoke check to capture browser output."
+- 404: "This preview path drifted." / "Return to the dashboard, projects, or settings."
 
 ## Footer
 
 - Black background.
 - Oversized wordmark.
-- Address, hours, contact, social, reservation/order links.
+- Build state, capabilities, integrations, security posture, and contact details.
 - 3-4 columns desktop; stacked mobile.
 - Utility labels in uppercase sans.

@@ -1,6 +1,6 @@
 # Visual References
 
-The files currently in this folder are deprecated Test Factory reference boards. They are kept only as historical assets and must not be used as The Local Cafe visual targets.
+The files currently in this folder are deprecated Test Factory reference boards. They are kept only as historical assets and must not be used as current Test Factory visual targets.
 
 Deprecated files:
 
@@ -11,14 +11,14 @@ Deprecated files:
 - `05-green-paper-layout.png`
 - `06-ui-reference-board.png`
 
-Required future Local Cafe reference categories:
+Required future Test Factory reference categories:
 
-- Natural-light cafe exterior and interior hero imagery.
-- Food closeups and consistent menu item crops.
-- Coffee and tea ritual photography.
-- Quiet people moments.
-- Sikkim/Himalayan textiles, details, and occasional mountain context.
+- Product homepage captures.
+- Browser screenshot evidence.
+- Report and repair-prompt artifacts.
+- GitHub PR/check status surfaces.
+- Vercel preview/deployment metadata surfaces.
 - Editorial collage layouts with visible construction grids.
-- Social-story overlays used only for journal/campaign sections.
+- Social-story overlays used only for product proof or release-evidence sections.
 
-When new references are added, name them by subject and usage, such as `01-local-cafe-hero-interior.jpg`, `02-menu-food-grid.jpg`, or `03-sikkim-origin-collage.jpg`.
+When new references are added, name them by subject and usage, such as `01-test-factory-homepage-hero.png`, `02-run-report-evidence-grid.png`, or `03-pr-automation-collage.png`.

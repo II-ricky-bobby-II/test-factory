@@ -142,7 +142,7 @@ describe("App", () => {
     expect(screen.queryByLabelText("Project name")).not.toBeInTheDocument();
   });
 
-  it("keeps the Local Cafe visual tokens out of generic blue SaaS styling", () => {
+  it("keeps the Behance-inspired Test Factory tokens out of generic blue SaaS styling", () => {
     const css = readFileSync("src/client/src/styles.css", "utf8");
 
     expect(css).toContain("--color-ink: #050505");
