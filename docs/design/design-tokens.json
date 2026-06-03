@@ -1,0 +1,88 @@
+{
+  "color": {
+    "ink": "#050505",
+    "charcoal": "#171411",
+    "espresso": "#21170F",
+    "paper": "#F7F3EA",
+    "warmWhite": "#FFFCF5",
+    "mist": "#ECEBE7",
+    "gridLine": "#D8D3C8",
+    "taupe": "#918A7C",
+    "clay": "#D65A2B",
+    "saffron": "#E5B72E",
+    "coffee": "#9B6436",
+    "cream": "#E7D0AE",
+    "leaf": "#405733",
+    "deepBlue": "#223D66",
+    "error": "#9E2F1C",
+    "success": "#405733"
+  },
+  "semantic": {
+    "surfacePage": "{color.paper}",
+    "surfaceCard": "{color.warmWhite}",
+    "surfaceInverse": "{color.ink}",
+    "surfaceMuted": "{color.taupe}",
+    "textPrimary": "{color.ink}",
+    "textSecondary": "rgba(5,5,5,0.72)",
+    "textTertiary": "rgba(5,5,5,0.52)",
+    "textInverse": "{color.warmWhite}",
+    "borderDefault": "rgba(5,5,5,0.16)",
+    "borderGrid": "rgba(216,211,200,0.72)",
+    "focusRing": "{color.clay}"
+  },
+  "font": {
+    "display": "'PP Migra', 'Cormorant Garamond', 'Bodoni 72', 'Didot', Georgia, serif",
+    "displayItalic": "'PP Migra Italic', 'Cormorant Garamond', 'Bodoni 72', 'Didot', Georgia, serif",
+    "sans": "'Gilroy', 'Inter', 'Helvetica Neue', Arial, sans-serif",
+    "script": "'Microsoft Himalaya', serif"
+  },
+  "space": {
+    "1": "4px",
+    "2": "8px",
+    "3": "12px",
+    "4": "16px",
+    "5": "24px",
+    "6": "32px",
+    "7": "48px",
+    "8": "64px",
+    "9": "80px",
+    "10": "96px",
+    "11": "128px",
+    "12": "160px",
+    "13": "192px",
+    "14": "240px"
+  },
+  "layout": {
+    "desktopColumns": 12,
+    "tabletColumns": 8,
+    "mobileColumns": 4,
+    "desktopMargin": "64px",
+    "tabletMargin": "32px",
+    "mobileMargin": "20px",
+    "desktopGutter": "24px",
+    "tabletGutter": "20px",
+    "mobileGutter": "16px",
+    "maxContentWidth": "1280px",
+    "baseline": "8px"
+  },
+  "radius": {
+    "none": "0",
+    "xs": "4px",
+    "sm": "8px",
+    "md": "12px",
+    "lg": "16px",
+    "full": "999px"
+  },
+  "shadow": {
+    "none": "none",
+    "soft": "0 18px 40px rgba(5,5,5,0.10)",
+    "modal": "0 28px 80px rgba(5,5,5,0.28)"
+  },
+  "motion": {
+    "durationFast": "140ms",
+    "durationBase": "220ms",
+    "durationSlow": "600ms",
+    "easeStandard": "cubic-bezier(0.2, 0, 0, 1)",
+    "easeEditorial": "cubic-bezier(0.16, 1, 0.3, 1)"
+  }
+}

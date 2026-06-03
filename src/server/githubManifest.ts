@@ -1,7 +1,7 @@
-import { existsSync } from "node:fs";
-import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
 import type { GitHubAppConfig } from "./githubApp.js";
+import type { SecretStore } from "./secretStore.js";
+
+export const GITHUB_APP_CONFIG_SECRET_ID = "github-app-config-v1";
 
 export interface GitHubAppManifest {
   name: string;
@@ -123,38 +123,18 @@ export function gitHubAppConfigFromManifest(conversion: GitHubManifestConversion
   };
 }
 
-export function applyGitHubAppEnv(config: GitHubAppConfig): void {
-  if (config.appId) process.env.GITHUB_APP_ID = config.appId;
-  if (config.appSlug) process.env.GITHUB_APP_SLUG = config.appSlug;
-  if (config.privateKey) process.env.GITHUB_APP_PRIVATE_KEY = escapeEnvValue(config.privateKey);
-  if (config.webhookSecret) process.env.GITHUB_WEBHOOK_SECRET = config.webhookSecret;
+export async function saveEncryptedGitHubAppConfig(secretStore: SecretStore, config: GitHubAppConfig): Promise<void> {
+  await secretStore.setSecret(JSON.stringify(compactGitHubAppConfig(config)), GITHUB_APP_CONFIG_SECRET_ID);
 }
 
-export async function persistGitHubAppEnv(config: GitHubAppConfig, envPath = path.resolve(process.cwd(), ".env")): Promise<void> {
-  const updates: Record<string, string | undefined> = {
-    GITHUB_APP_ID: config.appId,
-    GITHUB_APP_SLUG: config.appSlug,
-    GITHUB_APP_PRIVATE_KEY: config.privateKey ? escapeEnvValue(config.privateKey) : undefined,
-    GITHUB_WEBHOOK_SECRET: config.webhookSecret
-  };
-  const existing = existsSync(envPath) ? await readFile(envPath, "utf8") : "";
-  const lines = existing ? existing.replace(/\r\n/g, "\n").split("\n") : [];
-  const seen = new Set<string>();
-  const nextLines = lines.map((line) => {
-    const match = line.match(/^([A-Z0-9_]+)=/);
-    if (!match || !(match[1] in updates)) return line;
-    const key = match[1];
-    seen.add(key);
-    return `${key}=${updates[key] || ""}`;
-  });
-
-  for (const [key, value] of Object.entries(updates)) {
-    if (!seen.has(key)) nextLines.push(`${key}=${value || ""}`);
+export async function loadEncryptedGitHubAppConfig(secretStore: SecretStore): Promise<GitHubAppConfig | undefined> {
+  const raw = await secretStore.getSecret(GITHUB_APP_CONFIG_SECRET_ID);
+  if (!raw) return undefined;
+  const parsed = JSON.parse(raw) as unknown;
+  if (!parsed || typeof parsed !== "object") {
+    throw new Error("Encrypted GitHub App configuration is invalid.");
   }
-
-  await mkdir(path.dirname(envPath), { recursive: true });
-  await writeFile(envPath, trimTrailingBlankLines(nextLines).join("\n") + "\n", { mode: 0o600 });
-  await chmod(envPath, 0o600).catch(() => undefined);
+  return compactGitHubAppConfig(parsed as Record<keyof GitHubAppConfig, unknown>);
 }
 
 function githubAppName(projectName: string): string {
@@ -164,10 +144,6 @@ function githubAppName(projectName: string): string {
 
 function withoutTrailingSlash(value: string): string {
   return value.replace(/\/+$/, "");
-}
-
-function escapeEnvValue(value: string): string {
-  return value.replace(/\r?\n/g, "\\n");
 }
 
 function escapeHtml(value: string): string {
@@ -186,8 +162,17 @@ function assertManifestConversion(payload: unknown): asserts payload is GitHubMa
   }
 }
 
-function trimTrailingBlankLines(lines: string[]): string[] {
-  const next = [...lines];
-  while (next.length > 0 && next[next.length - 1] === "") next.pop();
-  return next;
+function compactGitHubAppConfig(config: Partial<Record<keyof GitHubAppConfig, unknown>>): GitHubAppConfig {
+  return {
+    appId: stringValue(config.appId),
+    appSlug: stringValue(config.appSlug),
+    installUrl: stringValue(config.installUrl),
+    privateKey: stringValue(config.privateKey),
+    webhookSecret: stringValue(config.webhookSecret),
+    publicUrl: stringValue(config.publicUrl)
+  };
+}
+
+function stringValue(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim() ? value : undefined;
 }

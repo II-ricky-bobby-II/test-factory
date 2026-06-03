@@ -1,27 +1,36 @@
-# Test Factory Design System
+# The Local Cafe Design System
 
-This folder is the source of truth for UI work.
+This folder is the source of truth for The Local Cafe website and web-app design direction.
 
-Test Factory is the canonical product name. Any legacy `QA Farm` wording that appears inside historical reference images is non-normative and must not be used in product UI, docs, titles, aria labels, or tests.
+The system is a refined editorial cafe identity: Himalayan hospitality carried from Sikkim into Delhi through food, coffee, tea, culture, and quiet ritual. It uses large PP Migra-style serif typography, tiny widely tracked Gilroy-style labels, off-white and black fields, taupe and clay accents, warm documentary imagery, visible construction grids, asymmetric collage layouts, and quiet functional UI.
 
-The app should not look like a generic SaaS dashboard. It should look like a rugged QA control room built from dark grid paper, cream report cards, red-orange cutout accents, forest green status labels, and retro editorial typography.
+## Required Read Order
 
-Use the reference images for visual taste. Use these documents for implementation rules.
+1. `migration-audit.md`
+2. `01-visual-direction.md`
+3. `02-design-tokens.md`
+4. `03-typography.md`
+5. `04-layout-and-surfaces.md`
+6. `05-components.md`
+7. `06-page-and-product-patterns.md`
+8. `07-ai-agent-rules.md`
+9. `tokens.css`
+10. `design-tokens.json`
+11. `tailwind.extend.js`
+12. `deprecated-references.md`
+13. `quality-assurance-checklist.md`
 
-## Required read order for AI agents
+## Non-Negotiables
 
-1. `01-visual-direction.md`
-2. `02-design-tokens.md`
-3. `03-typography.md`
-4. `04-layout-and-surfaces.md`
-5. `05-components.md`
-6. `06-qa-product-patterns.md`
-7. `07-ai-agent-rules.md`
-8. `tokens.css`
-9. `tailwind.extend.js`
+- The Local Cafe must feel editorial, warm, culturally rooted, and restrained.
+- Use the normalized web specifications in this folder and the branding pack. Do not invent source measurements from Behance.
+- Use off-white, black, taupe, clay, coffee, saffron, leaf, and deep-blue as a controlled palette.
+- Preserve the contrast between huge display serif type and tiny uppercase utility labels.
+- Use CSS grid for page layouts, menu layouts, and editorial collages.
+- Use flex only for nav, CTA groups, metadata rows, and horizontal story rails.
+- Use warm documentary imagery: cafe architecture, food, coffee and tea ritual, people, textiles, cultural details, and occasional Himalayan context.
+- Keep app flows practical: menu, cart, checkout, reservation, account, empty, error, and confirmation states must stay clear and accessible.
 
-## Non-negotiable rule
+## Deprecated Direction
 
-If a UI change creates a clean blue/white SaaS look, it is wrong.
-
-The visual references win over default UI habits.
+The previous dark QA control-room direction, folder-tab navigation, red cutout shadows, green grid pages, generic dashboard styling, cartoon or novelty motifs, and old reference boards are deprecated for The Local Cafe. See `deprecated-references.md` for the complete list.

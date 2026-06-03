@@ -1,83 +1,101 @@
-@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700;800&display=swap");
 
 :root {
   color-scheme: light;
   font-family: var(--font-sans);
 
-  --font-display: "Archivo Black", "Anton", system-ui, sans-serif;
-  --font-sans: "Inter", "Geist", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", "Space Mono", monospace;
+  --font-display: "PP Migra", "Cormorant Garamond", "Bodoni 72", "Didot", Georgia, serif;
+  --font-display-italic: "PP Migra Italic", "Cormorant Garamond", "Bodoni 72", "Didot", Georgia, serif;
+  --font-sans: "Gilroy", "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-script: "Microsoft Himalaya", serif;
+  --font-mono: var(--font-sans);
 
-  --color-charcoal: #181818;
-  --color-blacktop: #111111;
-  --color-field-green: #193c30;
-  --color-paper: #dad4ce;
-  --color-paper-warm: #d2ccc6;
-  --color-cream: #efe7d8;
-  --color-ink: #1b1a1a;
-  --color-muted-ink: #5f5b55;
-  --color-chalk: #e6ded2;
-  --color-brand-red: #c2442d;
-  --color-brand-red-dark: #7a3629;
-  --color-brand-orange: #e58541;
-  --color-brand-green: #0e5a3e;
-  --color-soft-green: #315045;
-  --line-soft: rgba(255, 255, 255, 0.08);
-  --line-dark: rgba(0, 0, 0, 0.18);
+  --color-ink: #050505;
+  --color-charcoal: #171411;
+  --color-espresso: #21170f;
+  --color-paper: #f7f3ea;
+  --color-warm-white: #fffcf5;
+  --color-mist: #ecebe7;
+  --color-grid-line: #d8d3c8;
+  --color-taupe: #918a7c;
+  --color-clay: #d65a2b;
+  --color-saffron: #e5b72e;
+  --color-coffee: #9b6436;
+  --color-cream: #e7d0ae;
+  --color-leaf: #405733;
+  --color-deep-blue: #223d66;
+  --color-error: #9e2f1c;
+  --color-success: var(--color-leaf);
 
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 22px;
-  --radius-xl: 28px;
+  /* Deprecated runtime aliases retained until component class names are renamed. */
+  --color-blacktop: var(--color-ink);
+  --color-field-green: var(--color-leaf);
+  --color-paper-warm: var(--color-warm-white);
+  --color-muted-ink: var(--color-taupe);
+  --color-chalk: var(--color-warm-white);
+  --color-brand-red: var(--color-clay);
+  --color-brand-red-dark: var(--color-coffee);
+  --color-brand-orange: var(--color-saffron);
+  --color-brand-green: var(--color-leaf);
+  --color-soft-green: var(--color-leaf);
+  --line-soft: rgba(255, 252, 245, 0.12);
+  --line-dark: rgba(5, 5, 5, 0.16);
+
+  --radius-none: 0;
+  --radius-xs: 4px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
   --radius-pill: 999px;
 
-  --shadow-paper: 0 12px 40px rgba(0, 0, 0, 0.18);
-  --shadow-lift: 0 8px 24px rgba(0, 0, 0, 0.16);
-  --shadow-cutout-red: 10px 10px 0 #c2442d;
+  --shadow-paper: 0 18px 40px rgba(5, 5, 5, 0.1);
+  --shadow-lift: 0 18px 40px rgba(5, 5, 5, 0.1);
+  --shadow-editorial-outline: 0 0 0 1px rgba(216, 211, 200, 0.72);
 
   --color-page: var(--color-paper);
-  --color-panel: var(--color-paper);
-  --color-panel-muted: var(--color-paper-warm);
-  --color-field: rgba(239, 231, 216, 0.68);
-  --color-segmented: rgba(17, 17, 17, 0.08);
+  --color-panel: var(--color-warm-white);
+  --color-panel-muted: var(--color-mist);
+  --color-field: rgba(255, 252, 245, 0.72);
+  --color-segmented: rgba(5, 5, 5, 0.08);
   --color-text: var(--color-ink);
   --color-heading: var(--color-ink);
   --color-muted: var(--color-muted-ink);
-  --color-muted-strong: #4c4843;
+  --color-muted-strong: rgba(5, 5, 5, 0.66);
   --color-subtle: var(--color-soft-green);
-  --color-empty-text: #827b72;
+  --color-empty-text: var(--color-taupe);
   --color-control-text: var(--color-ink);
   --color-card-text: var(--color-ink);
   --color-log-text: var(--color-chalk);
-  --color-border: rgba(0, 0, 0, 0.22);
-  --color-border-soft: rgba(0, 0, 0, 0.14);
-  --color-border-muted: rgba(0, 0, 0, 0.28);
-  --color-border-faint: rgba(0, 0, 0, 0.1);
+  --color-border: rgba(5, 5, 5, 0.16);
+  --color-border-soft: rgba(5, 5, 5, 0.12);
+  --color-border-muted: rgba(5, 5, 5, 0.22);
+  --color-border-faint: rgba(5, 5, 5, 0.1);
   --color-chrome: var(--color-blacktop);
   --color-chrome-contrast: var(--color-cream);
   --color-browser-text: var(--color-chalk);
   --color-primary: var(--color-brand-red);
-  --color-primary-contrast: var(--color-cream);
-  --color-primary-surface: rgba(194, 68, 45, 0.13);
-  --color-focus-ring: rgba(229, 133, 65, 0.28);
-  --color-caption-border: rgba(0, 0, 0, 0.28);
-  --color-caption-surface: rgba(239, 231, 216, 0.94);
-  --shadow-caption: 0 8px 24px rgba(0, 0, 0, 0.28);
+  --color-primary-contrast: var(--color-warm-white);
+  --color-primary-surface: rgba(214, 90, 43, 0.12);
+  --color-focus-ring: rgba(214, 90, 43, 0.28);
+  --color-caption-border: rgba(5, 5, 5, 0.22);
+  --color-caption-surface: rgba(255, 252, 245, 0.94);
+  --shadow-caption: 0 18px 40px rgba(5, 5, 5, 0.1);
   --color-info-text: var(--color-ink);
-  --color-info-surface: rgba(17, 17, 17, 0.08);
+  --color-info-surface: rgba(5, 5, 5, 0.08);
   --color-success-text: var(--color-brand-green);
   --color-success-icon: var(--color-brand-green);
-  --color-success-border: rgba(14, 90, 62, 0.5);
-  --color-success-surface: rgba(14, 90, 62, 0.16);
-  --color-success-surface-soft: rgba(14, 90, 62, 0.09);
-  --color-warning-text: #8b4518;
-  --color-warning-border: rgba(229, 133, 65, 0.58);
-  --color-warning-surface: rgba(229, 133, 65, 0.18);
-  --color-error-text: var(--color-brand-red-dark);
-  --color-error-icon: var(--color-brand-red);
-  --color-error-border: rgba(194, 68, 45, 0.58);
-  --color-error-surface: rgba(194, 68, 45, 0.13);
-  --color-error-surface-strong: rgba(194, 68, 45, 0.22);
+  --color-success-border: rgba(64, 87, 51, 0.5);
+  --color-success-surface: rgba(64, 87, 51, 0.14);
+  --color-success-surface-soft: rgba(64, 87, 51, 0.08);
+  --color-warning-text: var(--color-coffee);
+  --color-warning-border: rgba(229, 183, 46, 0.58);
+  --color-warning-surface: rgba(229, 183, 46, 0.18);
+  --color-error-text: var(--color-error);
+  --color-error-icon: var(--color-error);
+  --color-error-border: rgba(158, 47, 28, 0.58);
+  --color-error-surface: rgba(158, 47, 28, 0.12);
+  --color-error-surface-strong: rgba(158, 47, 28, 0.2);
   --color-code-text: var(--color-ink);
   --color-window-red: var(--color-brand-red);
   --color-window-yellow: var(--color-brand-orange);
@@ -94,7 +112,7 @@
   --color-page: var(--color-paper);
   --color-text: var(--color-ink);
   --color-info-text: var(--color-ink);
-  --color-info-surface: rgba(17, 17, 17, 0.08);
+  --color-info-surface: rgba(5, 5, 5, 0.08);
 }
 
 :root[data-theme="dark"] {
@@ -115,15 +133,15 @@ body {
   color: var(--color-text);
   background-color: var(--color-page);
   background-image:
-    linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+    linear-gradient(var(--line-dark) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-dark) 1px, transparent 1px);
   background-size: 34px 34px;
 }
 
 :root[data-theme="light"] body {
   background-image:
-    linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+    linear-gradient(var(--line-dark) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-dark) 1px, transparent 1px);
   background-size: 34px 34px;
 }
 
@@ -169,7 +187,7 @@ p {
 h1,
 h2 {
   font-family: var(--font-display);
-  font-weight: 900;
+  font-weight: 500;
 }
 
 h1 {
@@ -333,7 +351,7 @@ code,
   color: var(--color-ink);
   font-size: clamp(58px, 9vw, 136px);
   line-height: 0.88;
-  text-shadow: 8px 8px 0 rgba(194, 68, 45, 0.74);
+  text-shadow: 8px 8px 0 rgba(214, 90, 43, 0.42);
 }
 
 .public-hero-copy p:not(.eyebrow) {
@@ -436,7 +454,7 @@ code,
     linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
   background-size: auto, 34px 34px, 34px 34px;
-  box-shadow: var(--shadow-cutout-red), var(--shadow-paper);
+  box-shadow: var(--shadow-editorial-outline), var(--shadow-paper);
 }
 
 .preview-report-header {
@@ -604,7 +622,7 @@ code,
 
 .preview-status-warn {
   background: var(--color-brand-orange);
-  border-color: #9d5724;
+  border-color: var(--color-coffee);
 }
 
 .preview-table {
@@ -1044,7 +1062,7 @@ code,
   gap: 20px;
   width: min(100%, 430px);
   padding: 30px;
-  box-shadow: var(--shadow-cutout-red), var(--shadow-paper);
+  box-shadow: var(--shadow-editorial-outline), var(--shadow-paper);
 }
 
 .auth-panel h1 {
@@ -1447,7 +1465,7 @@ textarea:focus {
 .icon-danger-button {
   color: var(--color-brand-red-dark);
   border-color: var(--color-error-border);
-  background: rgba(194, 68, 45, 0.1);
+  background: var(--color-error-surface);
 }
 
 .primary-button {
@@ -1570,7 +1588,7 @@ textarea:focus {
 .test-button.active {
   border-color: var(--color-brand-red);
   background: var(--color-cream);
-  box-shadow: 6px 6px 0 rgba(194, 68, 45, 0.24);
+  box-shadow: 0 0 0 1px rgba(216, 211, 200, 0.72);
 }
 
 .project-button strong,
@@ -1712,7 +1730,7 @@ textarea:focus {
 
 .integration-status-item.ok {
   color: var(--color-cream);
-  border-color: rgba(14, 90, 62, 0.8);
+  border-color: rgba(64, 87, 51, 0.8);
   background: var(--color-brand-green);
 }
 
@@ -2178,7 +2196,7 @@ textarea:focus {
   margin-top: 4px;
   font-size: clamp(40px, 6vw, 76px);
   line-height: 0.9;
-  text-shadow: 8px 8px 0 rgba(194, 68, 45, 0.45);
+  text-shadow: 8px 8px 0 rgba(214, 90, 43, 0.26);
 }
 
 .browser-and-steps {
@@ -2460,7 +2478,7 @@ textarea:focus {
 }
 
 .event-row.error p {
-  color: #ff9a84;
+  color: var(--color-clay);
 }
 
 .event-row.warning p {
@@ -2468,7 +2486,7 @@ textarea:focus {
 }
 
 .event-row.success p {
-  color: #9ed5b9;
+  color: var(--color-leaf);
 }
 
 .status-pill {
@@ -2720,7 +2738,7 @@ textarea:focus {
   .public-hero-copy h1 {
     max-width: 100%;
     font-size: clamp(48px, 18vw, 78px);
-    text-shadow: 5px 5px 0 rgba(194, 68, 45, 0.68);
+    text-shadow: 5px 5px 0 rgba(214, 90, 43, 0.34);
   }
 
   .public-hero-copy p:not(.eyebrow) {

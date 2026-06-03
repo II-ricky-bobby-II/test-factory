@@ -2,7 +2,7 @@
 
 Test Factory is an owner-operated QA smoke runner for preview deployments. It turns saved projects, reusable smoke tests, PR diffs, and plain-language prompts into browser runs with live screenshots, structured logs, pass/fail reports, and repair prompts.
 
-The public deployment target for this repository is `https://testfactory.sh` on Vercel Hobby. The app is protected by owner login in production and keeps mutable data out of the repository.
+The public deployment target for this repository is `https://testfactory.sh` on Vercel Hobby. The app is protected by email/password sign-in in production and keeps mutable data out of the repository.
 
 ## What It Does
 
@@ -31,16 +31,18 @@ The Vercel deployment uses:
 
 - `api/index.ts` as the Express serverless entrypoint.
 - `vercel.json` rewrites so `/api/*` reaches the function and all other routes reach the Vite app.
-- Owner login through `TEST_FACTORY_ADMIN_PASSWORD_HASH` and `TEST_FACTORY_SESSION_SECRET`.
+- Email/password sign-in through `TEST_FACTORY_ADMIN_EMAIL`, `TEST_FACTORY_ADMIN_PASSWORD_HASH`, and `TEST_FACTORY_SESSION_SECRET`.
 - Private Vercel Blob persistence when `BLOB_READ_WRITE_TOKEN` and `TEST_FACTORY_STORAGE=blob` are configured.
 - `@sparticuz/chromium` plus `playwright-core` for serverless Browser-mode runs.
 - Hosted-target protections that block localhost, private IPs, internal hostnames, and metadata services on Vercel.
 
-Generate an owner password hash:
+Generate a password hash:
 
 ```bash
-npm run hash:admin-password
+npm run hash:admin-password -- '<password>'
 ```
+
+Set `TEST_FACTORY_ADMIN_EMAIL` to the sign-in email address and set `TEST_FACTORY_ADMIN_PASSWORD_HASH` to the generated hash. Do not store the raw password in environment variables. Session cookies are bound to the configured email and password hash without storing either value in the cookie payload, so a credential reset invalidates existing signed sessions.
 
 Recommended Vercel production variables:
 
@@ -49,6 +51,7 @@ Recommended Vercel production variables:
 - `QA_SMOKE_BROWSER_RUNTIME=serverless`
 - `QA_SMOKE_PUBLIC_URL=https://testfactory.sh`
 - `QA_SMOKE_SECRET_KEY`
+- `TEST_FACTORY_ADMIN_EMAIL`
 - `TEST_FACTORY_ADMIN_PASSWORD_HASH`
 - `TEST_FACTORY_SESSION_SECRET`
 - `TEST_FACTORY_STORAGE=blob`
@@ -63,11 +66,11 @@ The canonical hostname is `testfactory.sh`; `www.testfactory.sh` redirects to th
 
 ## Security Model
 
-Production API routes are owner-protected except health, login/session, and GitHub setup/webhook endpoints. Authenticated unsafe methods require the `X-Test-Factory-CSRF: 1` header.
+Production API routes are sign-in protected except health, login/session, and GitHub setup/webhook endpoints. Authenticated unsafe methods require the `X-Test-Factory-CSRF: 1` header.
 
 Run credentials are accepted only when starting a run. Passwords are never stored in saved profiles, project definitions, reusable tests, logs, API responses, GitHub comments, or repair prompts. Claude receives credential presence metadata, not password values.
 
-Vercel API tokens and deployment-protection bypass secrets are encrypted in the secret store. Public project responses expose only redacted booleans such as `vercelConnected`, `bypassConfigured`, and `githubInstalled`.
+GitHub App manifest credentials, Vercel API tokens, and deployment-protection bypass secrets are encrypted in the secret store. Public project responses expose only redacted booleans such as `vercelConnected`, `bypassConfigured`, and `githubInstalled`.
 
 `.env`, `.env.*`, `.qa-smoke/`, local build output, coverage, and Vercel project metadata are ignored by git and by `.vercelignore`.
 

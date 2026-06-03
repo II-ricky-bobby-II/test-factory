@@ -1,49 +1,36 @@
 # Agent Implementation Prompt
 
-Use this prompt when asking an AI coding agent to create or update UI.
+Use this prompt when asking an AI coding agent to create or update The Local Cafe UI.
 
 ```txt
-You are redesigning this app using the Test Factory design system.
+You are implementing The Local Cafe design system.
 
-Before editing UI, read the files in `/design`.
+Before editing UI, read `docs/design/README.md` and follow the required read order.
 
-The app should feel like a rugged QA control room made from dark grid paper, cream report cards, red-orange cutout accents, green status labels, and retro editorial typography.
-
-Do not create a generic SaaS dashboard.
+Create a refined editorial cafe experience rooted in Himalayan hospitality, Sikkim-to-Delhi storytelling, warm documentary imagery, large PP Migra-style serif typography, tiny widely tracked Gilroy-style labels, off-white/black/taupe/clay color fields, visible grid construction, asymmetric collage layouts, and quiet functional UI.
 
 Use:
-- dark charcoal grid backgrounds
-- cream paper cards
-- forest green success accents
-- red-orange failure and emphasis accents
-- large bold display headings
-- mono metadata labels
-- folder-tab navigation
-- rounded paper panels
-- subtle paper texture
-- report-like QA layouts
-- clear pass/fail/warn states
+- paper, warm-white, mist, ink, charcoal, espresso
+- taupe, clay, saffron, coffee, cream, leaf, deep-blue accents
+- PP Migra or fallback display serif
+- Gilroy or Inter/Helvetica fallback sans
+- Microsoft Himalaya only for non-critical script accents
+- 12-column desktop, 8-column tablet, 4-column mobile grid
+- CSS grid for page, menu, and collage layouts
+- flex only for nav, CTA groups, metadata rows, and horizontal rails
+- thin editorial buttons
+- square/rectangular image cards
+- practical cart, checkout, reservation, account, empty, and error states
 
 Avoid:
-- blue primary colors
-- generic gradients
-- glassmorphism
-- neon cyberpunk styling
-- literal cowboy clip art
-- over-themed copy
+- generic cafe templates
+- food-delivery-app styling
+- bright blue primary UI
+- heavy shadows
+- rounded cards everywhere
+- cartoon coffee icons
+- generic stock imagery
+- old Test Factory control-room references
 
-Create or reuse components for:
-- AppShell
-- FolderTabs
-- PaperCard
-- StatusBadge
-- RunCard
-- MetricCard
-- ReportSection
-- VisualDiffCard
-- LogPanel
-- PrimaryButton
-- SecondaryButton
-
-Keep the UI readable. The style can be expressive, but test results, errors, reports, and actions must stay clear.
+Preserve accessibility: readable body text, real HTML text for essential content, contrast over images, keyboard focus states, clear form errors, 44 px hit targets, and reduced-motion support.
 ```

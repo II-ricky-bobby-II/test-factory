@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "../src/server/app";
 import { hashPassword } from "../src/server/auth";
 import { GitHubAppClient } from "../src/server/githubApp";
+import { saveEncryptedGitHubAppConfig } from "../src/server/githubManifest";
 import { ProjectStore } from "../src/server/projectStore";
 import type { PrTestRecommender } from "../src/server/prTestRecommender";
 import { RunStore } from "../src/server/runStore";
@@ -21,26 +22,32 @@ describe("API", () => {
   it("reports Claude diagnostics from the health endpoint", async () => {
     vi.stubEnv("ANTHROPIC_API_KEY", "test-key");
     vi.stubEnv("CLAUDE_MODEL", "claude-sonnet-4-20250514");
+    const { store: projectStore, secretStore, cleanup } = await tempStores();
 
-    const response = await request(createApp(new RunStore())).get("/api/health");
+    try {
+      const response = await request(createApp(new RunStore(), projectStore, { secretStore })).get("/api/health");
 
-    expect(response.body).toEqual({
-      ok: true,
-      claudeConfigured: true,
-      claudeModel: "claude-sonnet-4-20250514",
-      browserModeRequiresClaude: true,
-      githubAppConfigured: false,
-      githubWebhookSecretConfigured: false,
-      githubInstallFlowConfigured: false,
-      publicUrlConfigured: false,
-      ownerAuthEnabled: false,
-      ownerAuthConfigured: false,
-      blobPersistenceConfigured: false
-    });
+      expect(response.body).toEqual({
+        ok: true,
+        claudeConfigured: true,
+        claudeModel: "claude-sonnet-4-20250514",
+        browserModeRequiresClaude: true,
+        githubAppConfigured: false,
+        githubWebhookSecretConfigured: false,
+        githubInstallFlowConfigured: false,
+        publicUrlConfigured: false,
+        ownerAuthEnabled: false,
+        ownerAuthConfigured: false,
+        blobPersistenceConfigured: false
+      });
+    } finally {
+      await cleanup();
+    }
   });
 
-  it("requires owner login and CSRF confirmation when production auth is enabled", async () => {
+  it("requires account login and CSRF confirmation when production auth is enabled", async () => {
     vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("TEST_FACTORY_ADMIN_EMAIL", "owner@example.com");
     vi.stubEnv("TEST_FACTORY_ADMIN_PASSWORD_HASH", hashPassword("owner-pass", Buffer.alloc(16, 1)));
     vi.stubEnv("TEST_FACTORY_SESSION_SECRET", "test-session-secret");
     const { store: projectStore, cleanup } = await tempProjectStore();
@@ -50,14 +57,26 @@ describe("API", () => {
       const blocked = await request(app).get("/api/projects");
       expect(blocked.status).toBe(401);
 
-      const badLogin = await request(app).post("/api/auth/login").send({ password: "wrong-pass" });
+      const missingEmailLogin = await request(app).post("/api/auth/login").send({ password: "owner-pass" });
+      expect(missingEmailLogin.status).toBe(401);
+
+      const badEmailLogin = await request(app)
+        .post("/api/auth/login")
+        .send({ email: "other@example.com", password: "owner-pass" });
+      expect(badEmailLogin.status).toBe(401);
+
+      const badLogin = await request(app).post("/api/auth/login").send({ email: "owner@example.com", password: "wrong-pass" });
       expect(badLogin.status).toBe(401);
 
-      const login = await request(app).post("/api/auth/login").send({ password: "owner-pass" });
+      const login = await request(app).post("/api/auth/login").send({ email: " OWNER@EXAMPLE.COM ", password: "owner-pass" });
       expect(login.status).toBe(200);
       expect(login.body).toMatchObject({ authEnabled: true, configured: true, authenticated: true });
       const cookie = login.headers["set-cookie"]?.[0]?.split(";")[0] || "";
       expect(cookie).toContain("test_factory_session=");
+      const payload = decodeSessionCookiePayload(cookie);
+      expect(payload).toMatchObject({ sub: "account" });
+      expect(JSON.stringify(payload)).not.toContain("owner@example.com");
+      expect(JSON.stringify(payload)).not.toContain("scrypt");
 
       const missingCsrf = await request(app)
         .post("/api/projects")
@@ -85,6 +104,65 @@ describe("API", () => {
       const listed = await request(app).get("/api/projects").set("Cookie", cookie);
       expect(listed.status).toBe(200);
       expect(listed.body.projects).toHaveLength(1);
+    } finally {
+      await cleanup();
+    }
+  });
+
+  it("rejects existing account sessions after a password reset", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("TEST_FACTORY_ADMIN_EMAIL", "owner@example.com");
+    vi.stubEnv("TEST_FACTORY_ADMIN_PASSWORD_HASH", hashPassword("first-pass", Buffer.alloc(16, 1)));
+    vi.stubEnv("TEST_FACTORY_SESSION_SECRET", "test-session-secret");
+    const { store: projectStore, cleanup } = await tempProjectStore();
+    try {
+      const firstApp = createApp(new RunStore(), projectStore);
+      const login = await request(firstApp)
+        .post("/api/auth/login")
+        .send({ email: "owner@example.com", password: "first-pass" });
+      const cookie = login.headers["set-cookie"]?.[0]?.split(";")[0] || "";
+      expect(cookie).toContain("test_factory_session=");
+
+      vi.stubEnv("TEST_FACTORY_ADMIN_PASSWORD_HASH", hashPassword("second-pass", Buffer.alloc(16, 2)));
+      const resetApp = createApp(new RunStore(), projectStore);
+      const blocked = await request(resetApp).get("/api/projects").set("Cookie", cookie);
+
+      expect(blocked.status).toBe(401);
+    } finally {
+      await cleanup();
+    }
+  });
+
+  it("rate-limits repeated failed sign-in attempts by source and email", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("TEST_FACTORY_ADMIN_EMAIL", "owner@example.com");
+    vi.stubEnv("TEST_FACTORY_ADMIN_PASSWORD_HASH", hashPassword("owner-pass", Buffer.alloc(16, 1)));
+    vi.stubEnv("TEST_FACTORY_SESSION_SECRET", "test-session-secret");
+    const { store: projectStore, cleanup } = await tempProjectStore();
+    try {
+      const app = createApp(new RunStore(), projectStore);
+      const source = "203.0.113.10";
+
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        const failed = await request(app)
+          .post("/api/auth/login")
+          .set("X-Forwarded-For", source)
+          .send({ email: "owner@example.com", password: `wrong-pass-${attempt}` });
+        expect(failed.status).toBe(401);
+      }
+
+      const locked = await request(app)
+        .post("/api/auth/login")
+        .set("X-Forwarded-For", source)
+        .send({ email: "owner@example.com", password: "owner-pass" });
+      expect(locked.status).toBe(429);
+      expect(locked.headers["retry-after"]).toBeTruthy();
+
+      const otherSource = await request(app)
+        .post("/api/auth/login")
+        .set("X-Forwarded-For", "203.0.113.11")
+        .send({ email: "owner@example.com", password: "owner-pass" });
+      expect(otherSource.status).toBe(200);
     } finally {
       await cleanup();
     }
@@ -761,6 +839,30 @@ describe("API", () => {
     }
   });
 
+  it("loads encrypted GitHub App configuration into the default GitHub client", async () => {
+    const { store: projectStore, secretStore, cleanup } = await tempStores();
+    try {
+      await saveEncryptedGitHubAppConfig(secretStore, {
+        appId: "123",
+        appSlug: "test-factory-app",
+        privateKey: "-----BEGIN KEY-----\nprivate\n-----END KEY-----\n",
+        webhookSecret: "webhook-secret"
+      });
+
+      const response = await request(createApp(new RunStore(), projectStore, { secretStore })).get("/api/health");
+
+      expect(response.body).toMatchObject({
+        githubAppConfigured: true,
+        githubWebhookSecretConfigured: true,
+        githubInstallFlowConfigured: true
+      });
+      expect(JSON.stringify(response.body)).not.toContain("webhook-secret");
+      expect(JSON.stringify(response.body)).not.toContain("-----BEGIN KEY-----");
+    } finally {
+      await cleanup();
+    }
+  });
+
   it("accepts a signed GitHub PR webhook, resolves a Vercel preview, and runs the configured suite", async () => {
     const { store: projectStore, secretStore, cleanup } = await tempStores();
     try {
@@ -1152,6 +1254,12 @@ function jsonResponse(body: unknown, status = 200): Response {
     status,
     json: async () => body
   } as Response;
+}
+
+function decodeSessionCookiePayload(cookie: string): Record<string, unknown> {
+  const value = decodeURIComponent(cookie.split("=")[1] || "");
+  const [payload] = value.split(".");
+  return JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as Record<string, unknown>;
 }
 
 async function emptyVercelCliRunner(): Promise<{ stdout: string; stderr: string }> {

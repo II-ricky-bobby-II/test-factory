@@ -5,15 +5,15 @@ import { executeQaRun } from "./browserAgent.js";
 import { AuthService } from "./auth.js";
 import { safeClaudeErrorMessage } from "./claudeErrors.js";
 import { getClaudeModel, isClaudeConfigured } from "./config.js";
-import { GitHubAppClient } from "./githubApp.js";
+import { GitHubAppClient, githubConfigFromEnv, type GitHubAppConfig } from "./githubApp.js";
 import {
-  applyGitHubAppEnv,
   buildGitHubAppManifest,
   convertGitHubAppManifest,
   gitHubAppConfigFromManifest,
   githubManifestActionUrl,
-  persistGitHubAppEnv,
-  renderGitHubManifestForm
+  loadEncryptedGitHubAppConfig,
+  renderGitHubManifestForm,
+  saveEncryptedGitHubAppConfig
 } from "./githubManifest.js";
 import { PrAutomationService } from "./prAutomation.js";
 import type { PrTestRecommender } from "./prTestRecommender.js";
@@ -21,7 +21,7 @@ import { ProjectStore, toPublicProject } from "./projectStore.js";
 import { assertAllowedHostedTarget } from "./hostedTargetPolicy.js";
 import { dataUriToResponse } from "./persistence.js";
 import { buildRepoContext, parseGitHubRepoUrl } from "./repoContext.js";
-import { isBlobPersistenceEnabled } from "./runtime.js";
+import { isBlobPersistenceEnabled, isProductionRuntime } from "./runtime.js";
 import { RunStore } from "./runStore.js";
 import { SecretStore } from "./secretStore.js";
 import { planClaudeSmokeSteps, planFallbackSteps, type ClaudePlanDiagnostics } from "./stepPlanner.js";
@@ -63,6 +63,7 @@ export function createApp(store = new RunStore(), projectStore = new ProjectStor
   const prAutomation =
     services.prAutomationService || new PrAutomationService(projectStore, store, secretStore, githubClient, vercelClient, services.prTestRecommender);
   const pendingGitHubConnections = new Map<string, PendingGitHubConnection>();
+  const githubConfigReady = services.githubClient ? Promise.resolve() : applyEncryptedGitHubAppConfig(githubClient, secretStore);
   const auth = new AuthService();
   const app = express();
   app.use(
@@ -76,7 +77,7 @@ export function createApp(store = new RunStore(), projectStore = new ProjectStor
 
   app.use(async (_request, _response, next) => {
     try {
-      await store.ready();
+      await Promise.all([store.ready(), githubConfigReady]);
       next();
     } catch (error) {
       next(error);
@@ -93,12 +94,21 @@ export function createApp(store = new RunStore(), projectStore = new ProjectStor
       return;
     }
     if (!auth.isConfigured()) {
-      response.status(503).json({ error: "Test Factory owner login is not configured." });
+      response.status(503).json({ error: "Test Factory sign-in is not configured." });
       return;
     }
+    const email = typeof request.body?.email === "string" ? request.body.email : "";
     const password = typeof request.body?.password === "string" ? request.body.password : "";
-    if (!auth.verifyPassword(password)) {
-      response.status(401).json({ error: "Invalid owner password." });
+    const attemptStatus = auth.loginAttemptStatus(request, email);
+    if (!attemptStatus.allowed) {
+      response.setHeader("Retry-After", String(attemptStatus.retryAfterSeconds || 60));
+      response.status(429).json({ error: "Too many sign-in attempts. Try again later." });
+      return;
+    }
+    const verified = auth.verifyCredentials(email, password);
+    auth.recordLoginAttempt(request, email, verified);
+    if (!verified) {
+      response.status(401).json({ error: "Invalid email or password." });
       return;
     }
     response.setHeader("Set-Cookie", auth.issueCookie(request));
@@ -159,7 +169,7 @@ export function createApp(store = new RunStore(), projectStore = new ProjectStor
       pendingGitHubConnections.set(state, { projectId: project.id, createdAt: Date.now() });
       const baseUrl = githubClient.publicUrl() || requestBaseUrl(request);
       const manifest = buildGitHubAppManifest({ projectName: project.name, baseUrl });
-      response.setHeader("Set-Cookie", cookieHeader(GITHUB_CONNECT_COOKIE, state, GITHUB_CONNECT_TTL_MS / 1000));
+      response.setHeader("Set-Cookie", cookieHeader(request, GITHUB_CONNECT_COOKIE, state, GITHUB_CONNECT_TTL_MS / 1000));
       response.type("html").send(
         renderGitHubManifestForm({
           actionUrl: githubManifestActionUrl(organization),
@@ -199,11 +209,10 @@ export function createApp(store = new RunStore(), projectStore = new ProjectStor
 
       const conversion = await convertGitHubAppManifest(code);
       const config = gitHubAppConfigFromManifest(conversion);
-      await persistGitHubAppEnv(config);
-      applyGitHubAppEnv(config);
+      await saveEncryptedGitHubAppConfig(secretStore, config);
       githubClient.updateConfig(config);
 
-      response.setHeader("Set-Cookie", cookieHeader(GITHUB_CONNECT_COOKIE, returnedState, GITHUB_CONNECT_TTL_MS / 1000));
+      response.setHeader("Set-Cookie", cookieHeader(request, GITHUB_CONNECT_COOKIE, returnedState, GITHUB_CONNECT_TTL_MS / 1000));
       response.redirect(`https://github.com/apps/${encodeURIComponent(conversion.slug)}/installations/new`);
     } catch (error) {
       next(error);
@@ -220,7 +229,7 @@ export function createApp(store = new RunStore(), projectStore = new ProjectStor
       }
       if (!githubClient.isInstallFlowConfigured()) {
         response.status(400).json({
-          error: "GitHub login needs GITHUB_APP_SLUG or GITHUB_APP_INSTALL_URL. Create the GitHub App from Integrations or add one value to .env and restart the server."
+          error: "GitHub login needs a GitHub App slug or install URL. Create the GitHub App from Integrations or configure provider-managed GitHub App settings."
         });
         return;
       }
@@ -233,7 +242,7 @@ export function createApp(store = new RunStore(), projectStore = new ProjectStor
       prunePendingGitHubConnections(pendingGitHubConnections);
       const state = randomUUID();
       pendingGitHubConnections.set(state, { projectId: project.id, createdAt: Date.now() });
-      response.setHeader("Set-Cookie", cookieHeader(GITHUB_CONNECT_COOKIE, state, GITHUB_CONNECT_TTL_MS / 1000));
+      response.setHeader("Set-Cookie", cookieHeader(request, GITHUB_CONNECT_COOKIE, state, GITHUB_CONNECT_TTL_MS / 1000));
       response.redirect(url);
     } catch (error) {
       next(error);
@@ -250,7 +259,7 @@ export function createApp(store = new RunStore(), projectStore = new ProjectStor
       const state = parseCookie(request.headers.cookie || "")[GITHUB_CONNECT_COOKIE] || "";
       const pending = pendingGitHubConnections.get(state);
       if (state) pendingGitHubConnections.delete(state);
-      response.setHeader("Set-Cookie", clearCookieHeader(GITHUB_CONNECT_COOKIE));
+      response.setHeader("Set-Cookie", clearCookieHeader(request, GITHUB_CONNECT_COOKIE));
 
       const resolvedSetup =
         pending && Date.now() - pending.createdAt <= GITHUB_CONNECT_TTL_MS
@@ -1060,12 +1069,52 @@ function prunePendingGitHubConnections(connections: Map<string, PendingGitHubCon
   }
 }
 
-function cookieHeader(name: string, value: string, maxAgeSeconds: number): string {
-  return `${name}=${encodeURIComponent(value)}; Max-Age=${Math.floor(maxAgeSeconds)}; Path=/api/github; HttpOnly; SameSite=Lax`;
+async function applyEncryptedGitHubAppConfig(githubClient: GitHubAppClient, secretStore: SecretStore): Promise<void> {
+  const encryptedConfig = await loadEncryptedGitHubAppConfig(secretStore);
+  if (!encryptedConfig) return;
+  githubClient.updateConfig(withEnvPrecedence(encryptedConfig));
 }
 
-function clearCookieHeader(name: string): string {
-  return `${name}=; Max-Age=0; Path=/api/github; HttpOnly; SameSite=Lax`;
+function withEnvPrecedence(encryptedConfig: GitHubAppConfig): GitHubAppConfig {
+  const envConfig = githubConfigFromEnv();
+  return {
+    appId: envConfig.appId || encryptedConfig.appId,
+    privateKey: envConfig.privateKey || encryptedConfig.privateKey,
+    webhookSecret: envConfig.webhookSecret || encryptedConfig.webhookSecret,
+    publicUrl: envConfig.publicUrl || encryptedConfig.publicUrl,
+    appSlug: envConfig.appSlug || encryptedConfig.appSlug,
+    installUrl: envConfig.installUrl || encryptedConfig.installUrl
+  };
+}
+
+function cookieHeader(request: express.Request, name: string, value: string, maxAgeSeconds: number): string {
+  return [
+    `${name}=${encodeURIComponent(value)}`,
+    `Max-Age=${Math.floor(maxAgeSeconds)}`,
+    "Path=/api/github",
+    "HttpOnly",
+    "SameSite=Lax",
+    shouldUseSecureCookie(request) ? "Secure" : ""
+  ]
+    .filter(Boolean)
+    .join("; ");
+}
+
+function clearCookieHeader(request: express.Request, name: string): string {
+  return [
+    `${name}=`,
+    "Max-Age=0",
+    "Path=/api/github",
+    "HttpOnly",
+    "SameSite=Lax",
+    shouldUseSecureCookie(request) ? "Secure" : ""
+  ]
+    .filter(Boolean)
+    .join("; ");
+}
+
+function shouldUseSecureCookie(request: express.Request): boolean {
+  return isProductionRuntime() || request.secure || request.headers["x-forwarded-proto"] === "https";
 }
 
 function parseCookie(header: string): Record<string, string> {

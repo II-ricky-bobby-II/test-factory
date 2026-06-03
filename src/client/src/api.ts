@@ -55,10 +55,10 @@ export async function fetchAuthSession(): Promise<AuthSession> {
   return session as AuthSession;
 }
 
-export async function loginOwner(password: string): Promise<AuthSession> {
+export async function loginOwner(email: string, password: string): Promise<AuthSession> {
   return apiRequest<AuthSession>("/api/auth/login", {
     method: "POST",
-    body: JSON.stringify({ password })
+    body: JSON.stringify({ email, password })
   });
 }
 

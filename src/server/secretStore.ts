@@ -51,7 +51,7 @@ export class SecretStore {
         return secret.id;
       }
       const next: PersistedSecret = {
-        id: randomUUID(),
+        id: existingId || randomUUID(),
         createdAt: now,
         updatedAt: now,
         ...encrypted

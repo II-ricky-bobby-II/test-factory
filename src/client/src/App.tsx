@@ -18,6 +18,7 @@ import {
   LayoutDashboard,
   ListChecks,
   Loader2,
+  Mail,
   Monitor,
   Moon,
   Play,
@@ -204,6 +205,7 @@ export function App() {
   const [authSession, setAuthSession] = useState<AuthSession | undefined>(() =>
     isProductionBundle() ? undefined : localAuthSession
   );
+  const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
@@ -319,7 +321,7 @@ export function App() {
         await refreshIntegrationStatus();
       }
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Could not load owner session.");
+      setError(caught instanceof Error ? caught.message : "Could not load sign-in session.");
       if (isProductionBundle()) {
         setAuthSession({ authEnabled: true, configured: false, authenticated: false });
       }
@@ -331,8 +333,9 @@ export function App() {
     setIsLoggingIn(true);
     setError(undefined);
     try {
-      const session = await loginOwner(loginPassword);
+      const session = await loginOwner(loginEmail, loginPassword);
       setAuthSession(session);
+      setLoginEmail("");
       setLoginPassword("");
       await refreshProjects();
       await refreshIntegrationStatus();
@@ -867,7 +870,7 @@ export function App() {
                   <input
                     value={adHocForm.profileName}
                     onChange={(event) => updateAdHocForm({ profileName: event.target.value })}
-                    placeholder="Admin menu smoke"
+                    placeholder="Checkout smoke"
                     autoComplete="off"
                   />
                 </Field>
@@ -1019,7 +1022,7 @@ export function App() {
                 required
                 value={projectForm.name}
                 onChange={(event) => setProjectForm({ ...projectForm, name: event.target.value })}
-                placeholder="Admin preview"
+                placeholder="Preview workspace"
                 autoComplete="off"
               />
             </Field>
@@ -1408,7 +1411,7 @@ export function App() {
                     <input
                       value={automationForm.vercelProjectName}
                       onChange={(event) => setAutomationForm({ ...automationForm, vercelProjectName: event.target.value })}
-                      placeholder="admin"
+                      placeholder="web-app"
                       autoComplete="off"
                     />
                   </Field>
@@ -1580,11 +1583,13 @@ export function App() {
   if (!authSession.authenticated) {
     return (
       <LoginScreen
+        loginEmail={loginEmail}
         loginPassword={loginPassword}
         isLoggingIn={isLoggingIn}
         authConfigured={authSession.configured}
         error={error}
         onLogin={onLogin}
+        onEmailChange={setLoginEmail}
         onPasswordChange={setLoginPassword}
       />
     );
@@ -1615,18 +1620,22 @@ function TestFactoryMark({ label = "Test Factory logo" }: { label?: string }) {
 }
 
 function LoginScreen({
+  loginEmail,
   loginPassword,
   isLoggingIn,
   authConfigured,
   error,
   onLogin,
+  onEmailChange,
   onPasswordChange
 }: {
+  loginEmail: string;
   loginPassword: string;
   isLoggingIn: boolean;
   authConfigured: boolean;
   error?: string;
   onLogin: (event: FormEvent) => void;
+  onEmailChange: (email: string) => void;
   onPasswordChange: (password: string) => void;
 }) {
   return (
@@ -1634,21 +1643,34 @@ function LoginScreen({
       <form className="auth-panel" onSubmit={onLogin}>
         <TestFactoryMark />
         <h1>Test Factory</h1>
-        <p className="auth-copy">Owner login keeps runs, credentials, screenshots, and integration settings behind the production session.</p>
-        <Field label="Owner password" icon={<KeyRound size={16} aria-hidden />}>
+        <p className="auth-copy">Sign in to keep runs, credentials, screenshots, and integration settings behind the production session.</p>
+        <Field label="Email" icon={<Mail size={16} aria-hidden />}>
+          <input
+            value={loginEmail}
+            onChange={(event) => onEmailChange(event.target.value)}
+            type="email"
+            autoComplete="username"
+            autoCapitalize="none"
+            autoCorrect="off"
+            inputMode="email"
+            required
+            autoFocus
+          />
+        </Field>
+        <Field label="Password" icon={<KeyRound size={16} aria-hidden />}>
           <input
             value={loginPassword}
             onChange={(event) => onPasswordChange(event.target.value)}
             type="password"
             autoComplete="current-password"
-            autoFocus
+            required
           />
         </Field>
         <button className="primary-button" type="submit" disabled={isLoggingIn || !authConfigured}>
           {isLoggingIn ? <Loader2 className="spin" size={17} aria-hidden /> : <ShieldCheck size={17} aria-hidden />}
           Sign in
         </button>
-        {!authConfigured ? <div className="error-banner">Owner login is not configured.</div> : null}
+        {!authConfigured ? <div className="error-banner">Sign-in is not configured.</div> : null}
         {error ? <div className="error-banner">{error}</div> : null}
       </form>
     </main>
@@ -1688,7 +1710,7 @@ function PublicHomepage({ onLogin }: { onLogin: (event: MouseEvent<HTMLAnchorEle
           </div>
           <div className="public-hero-note" aria-label="Beta access status">
             <CheckCircle2 size={18} aria-hidden />
-            <span>Owner-protected beta while the run loop, evidence capture, and PR automation harden.</span>
+            <span>Protected beta while the run loop, evidence capture, and PR automation harden.</span>
           </div>
         </div>
         <PublicProductPreview />
@@ -1767,7 +1789,7 @@ function PublicHomepage({ onLogin }: { onLogin: (event: MouseEvent<HTMLAnchorEle
         <IntegrationCard icon={<Github size={19} aria-hidden />} title="GitHub App" body="Checks, comments, PR context, installation mapping, and app-only draft tests." />
         <IntegrationCard icon={<Globe2 size={19} aria-hidden />} title="Vercel previews" body="Preview discovery by commit and branch, with optional deployment-protection bypass handling." />
         <IntegrationCard icon={<Bot size={19} aria-hidden />} title="Claude + browser agent" body="Prompt planning, action selection, test draft generation, and failure repair briefing." />
-        <IntegrationCard icon={<ShieldCheck size={19} aria-hidden />} title="Owner-protected data" body="Production auth, CSRF checks, encrypted integration secrets, and redacted run persistence." />
+        <IntegrationCard icon={<ShieldCheck size={19} aria-hidden />} title="Protected data" body="Production auth, CSRF checks, encrypted integration secrets, and redacted run persistence." />
       </section>
       <PublicFooter />
     </main>
@@ -1931,7 +1953,7 @@ function PreviewLogsPanel() {
           <span>agent-run.log</span>
         </div>
         <p><span className="log-time">10:24:01</span> Opened Vercel preview for branch checkout-fix.</p>
-        <p><span className="log-pass">PASS</span> Auth smoke passed with saved owner-safe credentials.</p>
+        <p><span className="log-pass">PASS</span> Auth smoke passed with saved credentials.</p>
         <p><span className="log-pass">PASS</span> Cart summary rendered with expected total.</p>
         <p><span className="log-warn">WARN</span> Pricing card shifted 4% against baseline.</p>
         <p><span className="log-fail">FAIL</span> Payment button missing expected label.</p>
@@ -1960,7 +1982,7 @@ function PublicFooter() {
       <div className="public-footer-grid">
         <div>
           <span className="eyebrow">Build state</span>
-          <p>Private beta. Owner access only while smoke runs, saved checks, PR automation, and report handoff mature.</p>
+          <p>Private beta. Sign-in access only while smoke runs, saved checks, PR automation, and report handoff mature.</p>
         </div>
         <div>
           <span className="eyebrow">Capabilities</span>
@@ -1972,7 +1994,7 @@ function PublicFooter() {
         </div>
         <div>
           <span className="eyebrow">Security posture</span>
-          <p>Owner login, CSRF checks, redacted run persistence, and no public access to stored credentials.</p>
+          <p>Sign-in, CSRF checks, redacted run persistence, and no public access to stored credentials.</p>
         </div>
       </div>
       <div className="public-footer-bottom">
@@ -2479,7 +2501,7 @@ function GitHubSetupNote({ status }: { status?: IntegrationStatus }) {
     <div className="setup-note" role="note">
       <strong>GitHub setup is incomplete.</strong>
       <p>
-        Use Create GitHub App to sign in with GitHub and register the app, or add the missing values to <code>.env</code> and restart.
+        Use Create GitHub App to sign in with GitHub and register the app. Generated app credentials are stored encrypted.
       </p>
       {missing.length > 0 ? (
         <div className="env-chip-list" aria-label="Missing GitHub configuration">

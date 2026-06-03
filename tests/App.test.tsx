@@ -85,7 +85,7 @@ describe("App", () => {
     expect(screen.getByLabelText("Log environment metadata")).toHaveTextContent("Claude browser agent");
   });
 
-  it("shows owner login at /login and enters the app after sign-in", async () => {
+  it("shows email/password login at /login and enters the app after sign-in", async () => {
     vi.stubEnv("NODE_ENV", "production");
     window.history.replaceState(null, "", "/login");
     const user = userEvent.setup();
@@ -105,12 +105,19 @@ describe("App", () => {
 
     render(<App />);
 
-    await user.type(await screen.findByLabelText("Owner password"), "owner-pass");
+    await user.type(await screen.findByLabelText("Email"), "owner@example.com");
+    await user.type(screen.getByLabelText("Password"), "owner-pass");
     await user.click(screen.getByRole("button", { name: /sign in/i }));
 
     await waitFor(() => expect(window.location.pathname).toBe("/app"));
     expect(await screen.findByRole("button", { name: /dashboard/i })).toHaveClass("active");
-    expect(fetchMock).toHaveBeenCalledWith("/api/auth/login", expect.objectContaining({ method: "POST" }));
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/auth/login",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ email: "owner@example.com", password: "owner-pass" })
+      })
+    );
   });
 
   it("renders the smoke run setup controls", () => {
@@ -135,14 +142,15 @@ describe("App", () => {
     expect(screen.queryByLabelText("Project name")).not.toBeInTheDocument();
   });
 
-  it("keeps the Test Factory visual tokens out of generic blue SaaS styling", () => {
+  it("keeps the Local Cafe visual tokens out of generic blue SaaS styling", () => {
     const css = readFileSync("src/client/src/styles.css", "utf8");
 
-    expect(css).toContain("--color-charcoal: #181818");
-    expect(css).toContain("--color-paper: #dad4ce");
-    expect(css).toContain("--color-brand-red: #c2442d");
-    expect(css).toContain("--color-brand-green: #0e5a3e");
-    expect(css).toContain("linear-gradient(var(--line-soft) 1px, transparent 1px)");
+    expect(css).toContain("--color-ink: #050505");
+    expect(css).toContain("--color-paper: #f7f3ea");
+    expect(css).toContain("--color-clay: #d65a2b");
+    expect(css).toContain("--color-leaf: #405733");
+    expect(css).toContain("--font-display: \"PP Migra\"");
+    expect(css).toContain("linear-gradient(var(--line-dark) 1px, transparent 1px)");
     expect(css).not.toMatch(/#2563eb|#60a5fa|generic SaaS/i);
   });
 

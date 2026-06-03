@@ -26,6 +26,11 @@ describe("SecretStore", () => {
     expect(sameId).toBe(id);
     expect(await store.getSecret(id)).toBe("new-token");
 
+    const namedId = await store.setSecret("github-webhook-secret", "github-app-config-v1");
+    expect(namedId).toBe("github-app-config-v1");
+    expect(await store.getSecret(namedId)).toBe("github-webhook-secret");
+    expect(await readFile(storePath, "utf8")).not.toContain("github-webhook-secret");
+
     await store.deleteSecret(id);
     expect(await store.getSecret(id)).toBeUndefined();
   });

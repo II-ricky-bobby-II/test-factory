@@ -8,13 +8,13 @@ Scope: repository files intended for the public `II-ricky-bobby-II/test-factory`
 
 No blocking release findings remain from the pre-publication audit.
 
-The release adds production owner login, CSRF confirmation for authenticated mutations, private hosted persistence, hosted-target SSRF protections, CI, Dependabot, environment templates, git/Vercel ignore rules, and a repeatable release audit script.
+The release adds production sign-in, CSRF confirmation for authenticated mutations, private hosted persistence, hosted-target SSRF protections, CI, Dependabot, environment templates, git/Vercel ignore rules, and a repeatable release audit script.
 
 ## Security Review
 
 Reviewed surfaces:
 
-- Owner authentication and session-cookie behavior.
+- Email/password authentication and session-cookie behavior.
 - Public API allowlist.
 - GitHub webhook signature verification and setup callbacks.
 - Vercel preview/bypass-secret handling.
@@ -25,9 +25,10 @@ Reviewed surfaces:
 
 Controls verified:
 
-- Production auth is enabled when running on Vercel or with production/auth environment variables.
+- Production auth is enabled when running on Vercel or with production/auth environment variables, and requires the sign-in email, password hash, and session secret to be configured.
 - Protected unsafe API methods require `X-Test-Factory-CSRF: 1`.
 - Webhooks remain public but require `GITHUB_WEBHOOK_SECRET` signature verification.
+- GitHub App manifest credentials, Vercel API tokens, and deployment-protection bypass secrets persist through the encrypted secret store rather than plaintext app storage.
 - Run credentials are stripped from persisted run snapshots.
 - Passwords are not saved in browser profiles.
 - Hosted runs reject localhost, private, internal, metadata, and private-resolving hosts.
@@ -35,8 +36,7 @@ Controls verified:
 
 Residual accepted risks:
 
-- The owner-only preview opener can place a Vercel protection bypass value into the operator browser URL when a bypass secret is configured. This is intentional for manual preview access and remains behind owner login.
-- GitHub manifest credential persistence writes to local `.env`; on hosted Vercel this should be treated as a local-development convenience, not as a durable production configuration path.
+- The protected preview opener can place a Vercel protection bypass value into the operator browser URL when a bypass secret is configured. This is intentional for manual preview access and remains behind sign-in.
 - Browser automation against third-party targets is intentionally powerful. Hosted target validation limits network-abuse classes but does not replace operator judgment about which public targets are safe to test.
 
 ## Audits Run

@@ -10,9 +10,9 @@ Test Factory is a Vite React application backed by an Express API. Local develop
 
 - React UI: dashboard, project/test editor, and GitHub/Vercel integrations views.
 - Express API: auth, health, project/test CRUD, run lifecycle, SSE events, screenshot serving, GitHub setup/webhook intake, PR automation, and PR test-draft actions.
-- Auth service: owner password verification, signed session cookie issuance, protected API middleware, and CSRF confirmation for unsafe methods.
+- Auth service: email/password verification, signed session cookie issuance, protected API middleware, and CSRF confirmation for unsafe methods.
 - Project store: durable project, reusable test, PR automation, and PR recommendation definitions.
-- Secret store: encrypted integration-secret storage for Vercel API tokens and deployment-protection bypass secrets.
+- Secret store: encrypted integration-secret storage for GitHub App manifest credentials, Vercel API tokens, and deployment-protection bypass secrets.
 - Run store: active run state plus optional private Blob persistence for hosted run snapshots and screenshots.
 - PR automation coordinator: maps GitHub webhooks to projects, resolves Vercel previews, runs selected saved tests, generates PR-aware draft tests, and writes GitHub checks/comments.
 - GitHub App client: Octokit-backed installation-token operations for setup, repository sync, PR context fetching, checks, and comments.
@@ -26,7 +26,7 @@ Run credentials are accepted only in run creation payloads. Public run responses
 
 Project, reusable test, PR automation, and PR recommendation definitions are stored in `.qa-smoke/data.json` locally. On Vercel, `TEST_FACTORY_STORAGE=blob` with `BLOB_READ_WRITE_TOKEN` stores those documents in private Vercel Blob objects.
 
-Vercel API tokens and protection bypass secrets are stored separately from project records. Locally, `.qa-smoke/secrets.json` is encrypted with `QA_SMOKE_SECRET_KEY` when provided, otherwise a generated `.qa-smoke/secrets.key`. In hosted mode, `QA_SMOKE_SECRET_KEY` is required so encrypted secret data remains decryptable across serverless invocations.
+GitHub App manifest credentials, Vercel API tokens, and protection bypass secrets are stored separately from project records. Locally, `.qa-smoke/secrets.json` is encrypted with `QA_SMOKE_SECRET_KEY` when provided, otherwise a generated `.qa-smoke/secrets.key`. In hosted mode, `QA_SMOKE_SECRET_KEY` is required so encrypted secret data remains decryptable across serverless invocations.
 
 Run snapshots persist to private Blob in hosted mode. Persisted snapshots strip run credentials before writing. Screenshot data is stored as private Blob data and returned only by authenticated screenshot API routes.
 
@@ -34,7 +34,7 @@ Fix-it prompts receive redacted event/report text, failed-step metadata, credent
 
 ## Production Protection
 
-Owner login is enabled automatically when `NODE_ENV=production`, `VERCEL`, `VERCEL_ENV`, or auth variables are present. Protected API routes require a signed `test_factory_session` cookie. Unsafe protected methods also require `X-Test-Factory-CSRF: 1`.
+Sign-in is enabled automatically when `NODE_ENV=production`, `VERCEL`, `VERCEL_ENV`, or auth variables are present. A configured deployment requires `TEST_FACTORY_ADMIN_EMAIL`, `TEST_FACTORY_ADMIN_PASSWORD_HASH`, and `TEST_FACTORY_SESSION_SECRET`. Protected API routes require a signed `test_factory_session` cookie bound to the current configured email and password hash without storing either value in the cookie payload. Unsafe protected methods also require `X-Test-Factory-CSRF: 1`.
 
 The public API allowlist is intentionally narrow: health, auth session/login, GitHub webhook, GitHub setup, and GitHub manifest callback. GitHub webhooks still require signature verification through `GITHUB_WEBHOOK_SECRET`.
 
@@ -60,6 +60,6 @@ Recommendation drafts are not posted to GitHub and do not affect check conclusio
 
 ## GitHub App Flow
 
-When GitHub App credentials are missing, `/api/github/manifest/new?projectId=...` posts a preconfigured manifest to GitHub. The callback exchanges GitHub's manifest code for the app ID, slug, private key, and webhook secret, writes them to local `.env`, updates the in-memory client, and redirects to installation.
+When GitHub App credentials are missing, `/api/github/manifest/new?projectId=...` posts a preconfigured manifest to GitHub. The callback exchanges GitHub's manifest code for the app ID, slug, private key, and webhook secret, stores that app config in the encrypted secret store, updates the in-memory client, and redirects to installation.
 
 The normal connect flow starts at `/api/github/login?projectId=...`, stores a short-lived state cookie, and redirects to the configured GitHub App installation URL. GitHub returns to `/api/github/setup`, where Test Factory validates the installation, maps the selected repository, saves the installation ID, and returns the operator to `/integrations`.

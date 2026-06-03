@@ -1,140 +1,101 @@
 # 03. Typography
 
-Use three font roles.
+Typography is the primary brand carrier. The system depends on contrast between expressive display serif type and tiny structured sans labels.
 
-## 1. Display Font
+## Typeface Roles
 
-Use for large page titles, hero text, and major headings.
+| Role | Preferred | Fallback | Use |
+|---|---|---|---|
+| Display serif | PP Migra Regular | Cormorant Garamond, Bodoni 72, Didot, Georgia | Logo, hero, large page titles, menu categories |
+| Display italic | PP Migra Italics | Cormorant Garamond Italic, Bodoni 72, Didot Italic, Georgia Italic | Emphasis words, poetic subheads, menu notes |
+| Utility sans | Gilroy Semibold | Inter, Helvetica Neue, Arial | Eyebrows, nav, captions, metadata, buttons |
+| Body sans | Gilroy Regular | Inter, Helvetica Neue, Arial | Body copy, forms, checkout, account UI |
+| Script accent | Microsoft Himalaya | serif | Non-critical cultural accents only |
 
-Traits:
-
-- bold
-- condensed or chunky
-- retro editorial
-- high impact
-- tight line height
-
-Recommended options:
-
-- `Archivo Black`
-- `Anton`
-- `Cooper Black`
-- `Fraunces 900`
-- `Ultra`
-- `Bricolage Grotesque 800`
-
-Default recommendation:
+Use PP Migra and Gilroy only with proper licenses. Otherwise use the fallback stacks while preserving the intended contrast.
 
 ```css
---font-display: "Archivo Black", "Anton", system-ui, sans-serif;
+--font-display: 'PP Migra', 'Cormorant Garamond', 'Bodoni 72', 'Didot', Georgia, serif;
+--font-display-italic: 'PP Migra Italic', 'Cormorant Garamond', 'Bodoni 72', 'Didot', Georgia, serif;
+--font-sans: 'Gilroy', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+--font-script: 'Microsoft Himalaya', serif;
 ```
 
-Use display type for:
+## Core Rule
 
-- Test Factory
-- Smoke Runs
-- Visual Diffs
-- Test Reports
-- Run Failed
-
-Do not use display type for tables, logs, or long paragraphs.
-
-## 2. Sans Font
-
-Use for normal UI text.
-
-Traits:
-
-- clean
-- readable
-- slightly warm
-- not too corporate
-
-Recommended options:
-
-- `Inter`
-- `Geist`
-- `Satoshi`
-- `DM Sans`
-
-Default recommendation:
-
-```css
---font-sans: "Inter", "Geist", system-ui, sans-serif;
-```
-
-Use sans type for:
-
-- body copy
-- forms
-- cards
-- buttons
-- report text
-
-## 3. Mono / Pixel Font
-
-Use for metadata only.
-
-Traits:
-
-- technical
-- compact
-- retro
-- label-like
-
-Recommended options:
-
-- `IBM Plex Mono`
-- `Space Mono`
-- `JetBrains Mono`
-- `Geist Mono`
-- `Departure Mono`
-
-Default recommendation:
-
-```css
---font-mono: "IBM Plex Mono", "Space Mono", monospace;
-```
-
-Use mono type for:
-
-- run ID
-- browser/device
-- timestamps
-- test path
-- file names
-- status metadata
-- section eyebrow text
-
-Do not use mono text for long body copy.
+Do not make the product all serif. Serif carries emotion and scale. Sans carries structure, navigation, metadata, form clarity, and transactional UI.
 
 ## Type Scale
 
-| Role | Size | Weight | Line Height |
-|---|---:|---:|---:|
-| Hero | `72px-112px` | `900` | `0.9` |
-| Page title | `44px-72px` | `900` | `0.95` |
-| Section title | `28px-40px` | `800` | `1.0` |
-| Card title | `18px-24px` | `700` | `1.15` |
-| Body | `15px-17px` | `400-500` | `1.5` |
-| Small | `13px-14px` | `400-600` | `1.35` |
-| Mono label | `11px-13px` | `600-700` | `1.2` |
+| Role | Size | Line height | Tracking | Use |
+|---|---:|---:|---:|---|
+| `display-hero` | `clamp(96px, 11vw, 176px)` | `0.86` | `-0.035em` | Hero wordmark or page title |
+| `display-xl` | `clamp(72px, 8vw, 128px)` | `0.90` | `-0.03em` | Section-defining headline |
+| `display-lg` | `clamp(56px, 6vw, 96px)` | `0.95` | `-0.025em` | Editorial headline |
+| `display-md` | `clamp(40px, 4.8vw, 72px)` | `1.00` | `-0.02em` | Menu category, campaign title |
+| `display-sm` | `clamp(32px, 3.2vw, 48px)` | `1.04` | `-0.015em` | Card title, modal headline |
+| `body-lg` | `18px` | `1.55` | `0` | Intro paragraph |
+| `body-md` | `15-16px` | `1.55` | `0` | Standard body |
+| `body-sm` | `13-14px` | `1.50` | `0` | UI help and descriptions |
+| `label-lg` | `13px` | `1.2` | `0.34em` | Main labels, nav |
+| `label-md` | `11-12px` | `1.2` | `0.28em` | Captions and metadata |
+| `label-sm` | `9-10px` | `1.2` | `0.22em` | Dense social metadata |
 
-## Heading Rules
+Do not shrink body copy below 16 px on mobile.
 
-Headings should feel bold and placed with intent.
+## Label Rules
 
-Good:
+Labels are a brand signature:
 
-```txt
-SMOKE RUN / CHECKOUT
-Run Failed
+```css
+.label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.34em;
+}
 ```
 
-Bad:
+Use up to `0.38em` tracking for desktop nav. Keep mobile labels readable.
 
-```txt
-Dashboard Overview
+## Hierarchy Recipes
+
+Hero:
+
+```text
+FROM SIKKIM TO DELHI
+THE LOCAL CAFE
+HIMALAYAN HOSPITALITY
 ```
 
-Prefer specific, operational labels.
+Editorial section:
+
+```text
+THE CULTURE
+Every Dish Carries A Little Mountain Air
+```
+
+Functional app page:
+
+```text
+CHECKOUT
+Review your order.
+```
+
+## Italic Rules
+
+Use italics for one emphasis word, subheads, campaign cards, or short menu notes. Do not use italics for navigation, form labels, prices, error messages, or long paragraphs.
+
+## Body Copy Rules
+
+- Desktop body width: 440-620 px.
+- Paragraph size: 15-16 px desktop, 16 px mobile.
+- Line height: 1.5-1.65.
+- Color: `text-secondary` by default.
+- Body copy should be practical and clear even when headlines are poetic.
+
+## Bad Typography Signs
+
+The design is off-brand if the hero is small, labels are not widely tracked, most content is generic sans, script is decorative everywhere, or display text wraps awkwardly with orphan words.

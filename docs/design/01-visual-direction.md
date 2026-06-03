@@ -2,94 +2,79 @@
 
 ## North Star
 
-A retro western QA interface that feels like a field report, a dark technical notebook, and a design portfolio system.
+The Local Cafe should feel like a calm cultural editorial, not a standard restaurant website or food-ordering template.
 
-It should feel custom, tactile, and useful.
+The core idea is Himalayan hospitality carried from Sikkim into Delhi through food, coffee, tea, interiors, craft, and quiet ritual.
 
-It should not feel like a startup template.
+## Visual Thesis
 
-## Visual Traits
+Use these ingredients across the website and web app:
 
-Use these traits across the app:
+- Large elegant serif typography.
+- Tiny uppercase sans labels with wide tracking.
+- Off-white, black, taupe, clay, coffee, saffron, leaf, and deep-blue color fields.
+- Warm natural-light cafe photography.
+- Fine construction grids and hairline dividers.
+- Asymmetric editorial collages aligned to a column grid.
+- Square and rectangular image modules.
+- Sparse Himalayan/Sikkim cultural accents.
+- Practical forms, ordering, cart, checkout, reservation, and account UI.
 
-- dark charcoal grid backgrounds
-- cream paper surfaces
-- red-orange cutout accents
-- forest green labels and success states
-- orange secondary accents
-- large bold editorial headings
-- mono or pixel-style metadata
-- rounded folder tabs
-- report-like cards
-- screenshot collage layouts
-- stamped status badges
-- thin borders
-- subtle paper texture
-- slight hand-placed composition
+## What The Style Is
 
-## What the Style Is
-
-- retro
-- rugged
 - editorial
-- technical
-- western-adjacent
-- print-inspired
-- QA-focused
+- refined
+- warm
+- culturally rooted
+- photographic
+- spacious
+- tactile
+- quiet
+- functional
 
-## What the Style Is Not
+## What The Style Is Not
 
-- generic SaaS
-- glassmorphism
-- neon cyberpunk
-- soft pastel startup UI
-- blue primary dashboard UI
-- literal cowboy clip art
-- joke-heavy western theme
+- generic cafe template
+- food-delivery-app UI
+- bright startup palette
+- neon, pastel, or glassmorphism
+- cartoon coffee icon system
+- heavy drop-shadow card system
+- rounded SaaS dashboard
+- decorative cultural pattern wallpaper
+- overfilled layout with no negative space
 
-## Western Influence
+## Brand Story Signals
 
-Use western influence through material and language, not cartoons.
+Every first-viewport or major page moment should make at least one of these signals clear:
 
-Good:
+- The Local Cafe.
+- From Sikkim to Delhi.
+- Himalayan warmth and hospitality.
+- Food, coffee, tea, and local ritual.
+- A calm place to eat, read, work, meet, or pause.
 
-- trail log
-- roundup
-- field report
-- corral
-- brand
-- smoke run
-- pass/fail stamp
+## Composition Rules
 
-Avoid:
+Use deliberate asymmetry. Leave blank columns. Align collages to the 12-column grid and 24-column micro-grid. Pair a large visual anchor with smaller supporting images, captions, labels, or text-only taupe/clay cards.
 
-- howdy
-- yeehaw
-- saddle up
-- cowboy hats as icons
-- saloon imagery
-- cartoon horses
+Use visible grid lines only where they support the editorial construction language. Avoid placing a grid behind every section.
 
-## Visual Reference Rules
+## Color Proportions
 
-The attached images are the visual target.
+- 55-70% paper, warm-white, or mist.
+- 10-20% ink, charcoal, or espresso.
+- 10-20% photography.
+- 5-10% accents: taupe, clay, saffron, coffee, cream, leaf, deep-blue.
 
-When building UI:
+Clay and saffron are moment colors. Do not use them as default page backgrounds.
 
-1. Review the reference images first.
-2. Extract layout, color, type, and texture choices.
-3. Translate those choices into reusable UI components.
-4. Do not copy the images exactly.
-5. Do not ignore the images and fall back to default dashboard patterns.
+## Imagery
 
-## Page Personality
+Use warm documentary imagery: cafe exterior and interiors, window light, food closeups, coffee and tea process, hands, quiet people moments, textiles, cultural details, and occasional mountain/Himalayan context.
 
-Dashboard: dark grid, bold, operational.
+Reject generic stock cafe photography, cold blue interiors, harsh HDR food, neon edits, staged corporate groups, and cultural details without context.
 
-Reports: cream paper, structured, document-like.
+## Motifs
 
-Visual diffs: screenshot-first, red outlines for changes.
-
-Settings: calmer, still branded.
-
-Logs: terminal receipt style.
+Use a cloud mark, Himalayan script accent, paper texture, social-story overlay, and construction grid sparingly. Motifs should clarify identity, not fill empty space.

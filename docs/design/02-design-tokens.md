@@ -1,86 +1,123 @@
 # 02. Design Tokens
 
-Use these tokens for color, radius, shadow, spacing, and borders.
+Use these tokens for color, typography, spacing, radius, borders, shadows, layout, and motion.
 
 ## Color Tokens
 
 | Token | Hex | Use |
 |---|---:|---|
-| `charcoal` | `#181818` | Main dark background |
-| `blacktop` | `#111111` | Deep panels, logs, header areas |
-| `fieldGreen` | `#193C30` | Green page backgrounds |
-| `paper` | `#DAD4CE` | Main card surface |
-| `paperWarm` | `#D2CCC6` | Secondary paper surface |
-| `cream` | `#EFE7D8` | Light paper text/surface |
-| `ink` | `#1B1A1A` | Main dark text |
-| `mutedInk` | `#5F5B55` | Muted dark text |
-| `chalk` | `#E6DED2` | Text on dark surfaces |
-| `brandRed` | `#C2442D` | Failure, primary CTA, cutout shadow |
-| `brandRedDark` | `#7A3629` | Red borders and pressed states |
-| `brandOrange` | `#E58541` | Warnings, secondary accent |
-| `brandGreen` | `#0E5A3E` | Success, active labels |
-| `softGreen` | `#315045` | Muted green UI |
-| `lineSoft` | `rgba(255,255,255,0.08)` | Grid lines on dark |
-| `lineDark` | `rgba(0,0,0,0.18)` | Grid lines on paper |
+| `ink` | `#050505` | Primary text, black panels, footer |
+| `charcoal` | `#171411` | Softer dark surfaces and overlays |
+| `espresso` | `#21170F` | Warm dark brown-black panels |
+| `paper` | `#F7F3EA` | Primary page background |
+| `warm-white` | `#FFFCF5` | Cards, menus, forms, reversed panels |
+| `mist` | `#ECEBE7` | Neutral grey background |
+| `grid-line` | `#D8D3C8` | Fine grid, dividers, construction lines |
+| `taupe` | `#918A7C` | Muted cards, labels, secondary surfaces |
+| `clay` | `#D65A2B` | Launch, active, focus, primary accent |
+| `saffron` | `#E5B72E` | Flower or highlight accent |
+| `coffee` | `#9B6436` | Coffee, wood, hover warmth |
+| `cream` | `#E7D0AE` | Beverage and food warmth |
+| `leaf` | `#405733` | Natural green, success state |
+| `deep-blue` | `#223D66` | Textile-inspired accent |
+| `error` | `#9E2F1C` | Error state |
+| `success` | `#405733` | Success state |
 
-## Status Colors
+## Semantic Tokens
 
-| Status | Color | Usage |
+| Token | Value |
+|---|---|
+| `--surface-page` | `var(--color-paper)` |
+| `--surface-card` | `var(--color-warm-white)` |
+| `--surface-inverse` | `var(--color-ink)` |
+| `--surface-muted` | `var(--color-taupe)` |
+| `--text-primary` | `var(--color-ink)` |
+| `--text-secondary` | `rgba(5,5,5,0.72)` |
+| `--text-tertiary` | `rgba(5,5,5,0.52)` |
+| `--text-inverse` | `var(--color-warm-white)` |
+| `--border-default` | `rgba(5,5,5,0.16)` |
+| `--border-grid` | `rgba(216,211,200,0.72)` |
+| `--focus-ring` | `var(--color-clay)` |
+
+## Spacing Tokens
+
+Use a 4 px base with an 8 px baseline rhythm.
+
+| Token | Value | Use |
 |---|---:|---|
-| Pass | `brandGreen` | Passed tests, clean visual diffs |
-| Fail | `brandRed` | Failed tests, destructive states |
-| Warn | `brandOrange` | Warnings, flaky tests |
-| Running | `cream` on `blacktop` | Active jobs |
-| Skipped | `mutedInk` | Skipped tests |
+| `space-1` | `4px` | Icon/text micro gap |
+| `space-2` | `8px` | Compact gap |
+| `space-3` | `12px` | Form label gap |
+| `space-4` | `16px` | Small component padding |
+| `space-5` | `24px` | Card gap, mobile section gap |
+| `space-6` | `32px` | Component padding, tablet gap |
+| `space-7` | `48px` | Card and section interior |
+| `space-8` | `64px` | Desktop margin, major gap |
+| `space-9` | `80px` | Section intro gap |
+| `space-10` | `96px` | Small desktop section padding |
+| `space-11` | `128px` | Standard desktop section padding |
+| `space-12` | `160px` | Large editorial section padding |
+| `space-13` | `192px` | Immersive hero or manifesto spacing |
+| `space-14` | `240px` | Rare oversized brand pause |
+
+## Layout Tokens
+
+| Breakpoint | Columns | Margin | Gutter | Max width |
+|---|---:|---:|---:|---:|
+| Desktop | 12 | `64px` | `24px` | `1280px` |
+| Tablet | 8 | `32px` | `20px` | `100%` |
+| Mobile | 4 | `20px` | `16px` | `100%` |
+
+Use 24 micro columns on desktop, 16 on tablet, and 8 on mobile when aligning collages.
 
 ## Radius
 
 | Token | Value | Use |
 |---|---:|---|
-| `radius-sm` | `10px` | Small badges, inputs |
-| `radius-md` | `14px` | Inputs, small cards |
-| `radius-lg` | `22px` | Paper cards |
-| `radius-xl` | `28px` | Large panels, tabs |
-| `radius-pill` | `999px` | Pills, buttons, badges |
+| `radius-none` | `0` | Editorial cards, images, menu panels |
+| `radius-xs` | `4px` | Small controls only |
+| `radius-sm` | `8px` | Form controls, chips |
+| `radius-md` | `12px` | Social frames, modals |
+| `radius-lg` | `16px` | Story card only |
+| `radius-full` | `999px` | Avatar or pill only |
 
-## Borders
+Default editorial modules and images use square corners.
 
-Use visible borders. Do not rely only on shadow.
+## Borders And Shadows
 
-- Paper card border: `1px solid rgba(0,0,0,0.22)`
-- Dark card border: `1px solid rgba(255,255,255,0.12)`
-- Dashed utility border: `1px dashed rgba(255,255,255,0.24)`
+Use hairline borders and grid lines before shadows.
 
-## Shadows
+- Hairline: `1px solid var(--border-default)`.
+- Grid border: `1px solid var(--border-grid)`.
+- Dotted menu guide: `1px dotted rgba(5,5,5,0.22)`.
+- Inverse border: `1px solid rgba(255,252,245,0.42)`.
+- Default shadow: none.
+- Soft shadow: `0 18px 40px rgba(5,5,5,0.10)` only for floating social cards.
+- Modal shadow: `0 28px 80px rgba(5,5,5,0.28)`.
 
-Use flat print-style shadows.
+## Motion
 
-- Paper shadow: `0 12px 40px rgba(0,0,0,0.18)`
-- Cutout red shadow: `10px 10px 0 #C2442D`
-- Small lift: `0 8px 24px rgba(0,0,0,0.16)`
+- Fast: `140ms`.
+- Base: `220ms`.
+- Slow: `600ms`.
+- Standard easing: `cubic-bezier(0.2, 0, 0, 1)`.
+- Editorial easing: `cubic-bezier(0.16, 1, 0.3, 1)`.
 
-## Spacing
+Respect `prefers-reduced-motion`.
 
-Use a simple 4px-based scale.
+## Deprecated Token Mapping
 
-| Token | Value |
-|---|---:|
-| `space-1` | `4px` |
-| `space-2` | `8px` |
-| `space-3` | `12px` |
-| `space-4` | `16px` |
-| `space-5` | `20px` |
-| `space-6` | `24px` |
-| `space-8` | `32px` |
-| `space-10` | `40px` |
-| `space-12` | `48px` |
-| `space-16` | `64px` |
-| `space-20` | `80px` |
+Old Test Factory token names must not be used in new docs or components. If legacy runtime CSS still references them, map them to the new tokens until the component can be renamed:
 
-## Grid Backgrounds
-
-Dark pages must use a subtle grid.
-
-Paper pages may use a paper grid.
-
-Grid lines must stay faint. They should add texture, not reduce readability.
+| Deprecated | New token |
+|---|---|
+| `brandRed` | `clay` |
+| `brandRedDark` | `coffee` or `error` |
+| `brandOrange` | `saffron` |
+| `brandGreen` | `leaf` |
+| `fieldGreen` | `leaf` |
+| `blacktop` | `ink` or `espresso` |
+| `paperWarm` | `warm-white` |
+| `chalk` | `warm-white` |
+| `mutedInk` | `taupe` |
+| `cutoutRed` | remove; use hairline border or `shadow-soft` only |

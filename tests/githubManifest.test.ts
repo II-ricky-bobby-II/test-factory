@@ -6,9 +6,11 @@ import {
   buildGitHubAppManifest,
   convertGitHubAppManifest,
   githubManifestActionUrl,
-  persistGitHubAppEnv,
-  renderGitHubManifestForm
+  loadEncryptedGitHubAppConfig,
+  renderGitHubManifestForm,
+  saveEncryptedGitHubAppConfig
 } from "../src/server/githubManifest";
+import { SecretStore } from "../src/server/secretStore";
 
 describe("GitHub App manifest flow", () => {
   afterEach(() => {
@@ -58,7 +60,7 @@ describe("GitHub App manifest flow", () => {
     expect(html).toContain("document.forms[0].submit()");
   });
 
-  it("converts a manifest code and persists generated credentials to .env", async () => {
+  it("converts a manifest code and persists generated credentials encrypted", async () => {
     const fetchMock = vi.fn(async () =>
       jsonResponse({
         id: 123,
@@ -77,22 +79,25 @@ describe("GitHub App manifest flow", () => {
 
     const dir = await mkdtemp(path.join(os.tmpdir(), "qa-smoke-github-manifest-"));
     try {
-      const envPath = path.join(dir, ".env");
-      await persistGitHubAppEnv(
-        {
-          appId: String(converted.id),
-          appSlug: converted.slug,
-          privateKey: converted.pem,
-          webhookSecret: converted.webhook_secret
-        },
-        envPath
-      );
+      const storePath = path.join(dir, "secrets.json");
+      const store = new SecretStore(storePath, path.join(dir, "secrets.key"));
+      await saveEncryptedGitHubAppConfig(store, {
+        appId: String(converted.id),
+        appSlug: converted.slug,
+        privateKey: converted.pem,
+        webhookSecret: converted.webhook_secret
+      });
 
-      const env = await readFile(envPath, "utf8");
-      expect(env).toContain("GITHUB_APP_ID=123");
-      expect(env).toContain("GITHUB_APP_SLUG=qa-smoke-admin");
-      expect(env).toContain("GITHUB_APP_PRIVATE_KEY=-----BEGIN KEY-----\\nprivate\\n-----END KEY-----\\n");
-      expect(env).toContain("GITHUB_WEBHOOK_SECRET=webhook-secret");
+      const persisted = await readFile(storePath, "utf8");
+      expect(persisted).not.toContain("-----BEGIN KEY-----");
+      expect(persisted).not.toContain("private");
+      expect(persisted).not.toContain("webhook-secret");
+      expect(await loadEncryptedGitHubAppConfig(store)).toMatchObject({
+        appId: "123",
+        appSlug: "qa-smoke-admin",
+        privateKey: "-----BEGIN KEY-----\nprivate\n-----END KEY-----\n",
+        webhookSecret: "webhook-secret"
+      });
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

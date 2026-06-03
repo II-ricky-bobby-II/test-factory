@@ -2,45 +2,64 @@
 
 module.exports = {
   colors: {
-    charcoal: "#181818",
-    blacktop: "#111111",
-    fieldGreen: "#193C30",
-    paper: "#DAD4CE",
-    paperWarm: "#D2CCC6",
-    cream: "#EFE7D8",
-    ink: "#1B1A1A",
-    mutedInk: "#5F5B55",
-    chalk: "#E6DED2",
-    brandRed: "#C2442D",
-    brandRedDark: "#7A3629",
-    brandOrange: "#E58541",
-    brandGreen: "#0E5A3E",
-    softGreen: "#315045"
+    ink: "#050505",
+    charcoal: "#171411",
+    espresso: "#21170F",
+    paper: "#F7F3EA",
+    warmWhite: "#FFFCF5",
+    mist: "#ECEBE7",
+    gridLine: "#D8D3C8",
+    taupe: "#918A7C",
+    clay: "#D65A2B",
+    saffron: "#E5B72E",
+    coffee: "#9B6436",
+    cream: "#E7D0AE",
+    leaf: "#405733",
+    deepBlue: "#223D66",
+    error: "#9E2F1C",
+    success: "#405733"
+  },
+  spacing: {
+    1: "4px",
+    2: "8px",
+    3: "12px",
+    4: "16px",
+    5: "24px",
+    6: "32px",
+    7: "48px",
+    8: "64px",
+    9: "80px",
+    10: "96px",
+    11: "128px",
+    12: "160px",
+    13: "192px",
+    14: "240px"
   },
   borderRadius: {
-    sm: "10px",
-    md: "14px",
-    lg: "22px",
-    xl: "28px",
-    pill: "999px"
+    none: "0",
+    xs: "4px",
+    sm: "8px",
+    md: "12px",
+    lg: "16px",
+    full: "999px"
   },
   fontFamily: {
     display: ["var(--font-display)"],
+    displayItalic: ["var(--font-display-italic)"],
     sans: ["var(--font-sans)"],
-    mono: ["var(--font-mono)"]
+    script: ["var(--font-script)"]
   },
   boxShadow: {
-    paper: "0 12px 40px rgba(0,0,0,0.18)",
-    lift: "0 8px 24px rgba(0,0,0,0.16)",
-    cutoutRed: "10px 10px 0 #C2442D"
+    none: "none",
+    soft: "0 18px 40px rgba(5,5,5,0.10)",
+    modal: "0 28px 80px rgba(5,5,5,0.28)"
   },
   backgroundImage: {
-    "dark-grid": "linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)",
-    "paper-grid": "linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px)",
-    "green-grid": "linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)"
+    "editorial-grid": "linear-gradient(to right, rgba(216,211,200,0.62) 1px, transparent 1px), linear-gradient(to bottom, rgba(216,211,200,0.42) 1px, transparent 1px)",
+    "dark-editorial-grid": "linear-gradient(to right, rgba(255,252,245,0.12) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,252,245,0.10) 1px, transparent 1px)"
   },
   backgroundSize: {
-    grid: "32px 32px",
-    paperGrid: "34px 34px"
+    editorialGrid: "32px 96px",
+    microGrid: "32px 32px"
   }
 };
