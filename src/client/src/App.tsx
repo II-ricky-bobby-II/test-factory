@@ -11,7 +11,7 @@ import {
   Eye,
   Factory,
   FolderOpen,
-  Github,
+  GitBranch,
   GitPullRequest,
   Globe2,
   KeyRound,
@@ -909,7 +909,7 @@ export function App() {
                 <p className="profile-note">Saved settings are stored in this browser. Passwords are never saved.</p>
               </div>
 
-              <Field label="GitHub repo" icon={<Github size={16} aria-hidden />}>
+              <Field label="GitHub repo" icon={<GitBranch size={16} aria-hidden />}>
                 <input
                   value={adHocForm.githubRepo}
                   onChange={(event) => updateAdHocForm({ githubRepo: event.target.value })}
@@ -1035,7 +1035,7 @@ export function App() {
                 autoComplete="url"
               />
             </Field>
-            <Field label="Project GitHub repo" icon={<Github size={16} aria-hidden />}>
+            <Field label="Project GitHub repo" icon={<GitBranch size={16} aria-hidden />}>
               <input
                 value={projectForm.githubRepo}
                 onChange={(event) => setProjectForm({ ...projectForm, githubRepo: event.target.value })}
@@ -1336,12 +1336,12 @@ export function App() {
                   <div className="header-actions">
                     {integrationStatus?.githubInstallFlowConfigured ? (
                       <a className="secondary-button" href={`/api/github/login?projectId=${encodeURIComponent(selectedProject.id)}`}>
-                        <Github size={16} aria-hidden />
+                        <GitBranch size={16} aria-hidden />
                         Connect GitHub
                       </a>
                     ) : (
                       <a className="secondary-button" href={`/api/github/manifest/new?projectId=${encodeURIComponent(selectedProject.id)}`}>
-                        <Github size={16} aria-hidden />
+                        <GitBranch size={16} aria-hidden />
                         Create GitHub App
                       </a>
                     )}
@@ -1353,7 +1353,7 @@ export function App() {
                 </div>
                 <GitHubSetupNote status={integrationStatus} />
                 <div className="setting-grid">
-                  <Field label="Owner" icon={<Github size={16} aria-hidden />}>
+                  <Field label="Owner" icon={<GitBranch size={16} aria-hidden />}>
                     <input
                       value={automationForm.githubOwner}
                       onChange={(event) => setAutomationForm({ ...automationForm, githubOwner: event.target.value })}
@@ -1361,7 +1361,7 @@ export function App() {
                       autoComplete="off"
                     />
                   </Field>
-                  <Field label="Repo" icon={<Github size={16} aria-hidden />}>
+                  <Field label="Repo" icon={<GitBranch size={16} aria-hidden />}>
                     <input
                       value={automationForm.githubRepo}
                       onChange={(event) => setAutomationForm({ ...automationForm, githubRepo: event.target.value })}
@@ -1786,7 +1786,7 @@ function PublicHomepage({ onLogin }: { onLogin: (event: MouseEvent<HTMLAnchorEle
       </section>
 
       <section className="public-section public-integration-grid" aria-label="Integrations and safeguards">
-        <IntegrationCard icon={<Github size={19} aria-hidden />} title="GitHub App" body="Checks, comments, PR context, installation mapping, and app-only draft tests." />
+        <IntegrationCard icon={<GitBranch size={19} aria-hidden />} title="GitHub App" body="Checks, comments, PR context, installation mapping, and app-only draft tests." />
         <IntegrationCard icon={<Globe2 size={19} aria-hidden />} title="Vercel previews" body="Preview discovery by commit and branch, with optional deployment-protection bypass handling." />
         <IntegrationCard icon={<Bot size={19} aria-hidden />} title="Claude + browser agent" body="Prompt planning, action selection, test draft generation, and failure repair briefing." />
         <IntegrationCard icon={<ShieldCheck size={19} aria-hidden />} title="Protected data" body="Production auth, CSRF checks, encrypted integration secrets, and redacted run persistence." />

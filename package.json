@@ -20,19 +20,19 @@
     "install:browsers": "playwright install chromium"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.56.0",
+    "@anthropic-ai/sdk": "^0.102.0",
     "@octokit/auth-app": "^8.2.0",
     "@octokit/rest": "^22.0.1",
     "@sparticuz/chromium": "^149.0.0",
     "@vercel/blob": "^2.4.0",
-    "@vercel/functions": "^3.6.1",
+    "@vercel/functions": "^3.6.2",
     "express": "^5.1.0",
-    "lucide-react": "^0.468.0",
+    "lucide-react": "^1.17.0",
     "playwright": "^1.55.0",
     "playwright-core": "^1.60.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "zod": "^3.25.0"
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.0",
@@ -40,7 +40,7 @@
     "@testing-library/user-event": "^14.5.0",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.0",
-    "@types/react": "^19.0.0",
+    "@types/react": "^19.2.17",
     "@types/react-dom": "^19.0.0",
     "@types/supertest": "^6.0.0",
     "@vitejs/plugin-react": "^5.0.0",

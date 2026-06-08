@@ -85,7 +85,7 @@ const persistedTestSchema = z.object({
   updatedAt: z.string()
 });
 
-const persistedPrTestDraftSchema: z.ZodType<PrTestDraft, z.ZodTypeDef, unknown> = z.object({
+const persistedPrTestDraftSchema: z.ZodType<PrTestDraft> = z.object({
   id: z.string().min(1),
   recommendationSetId: z.string().min(1),
   projectId: z.string().min(1),
@@ -104,7 +104,7 @@ const persistedPrTestDraftSchema: z.ZodType<PrTestDraft, z.ZodTypeDef, unknown> 
   updatedAt: z.string()
 });
 
-const persistedRecommendationSetSchema: z.ZodType<PrTestRecommendationSet, z.ZodTypeDef, unknown> = z.object({
+const persistedRecommendationSetSchema: z.ZodType<PrTestRecommendationSet> = z.object({
   id: z.string().min(1),
   projectId: z.string().min(1),
   githubOwner: z.string(),
@@ -121,7 +121,7 @@ const persistedRecommendationSetSchema: z.ZodType<PrTestRecommendationSet, z.Zod
   changedFiles: z.array(z.string()),
   source: prTestRecommendationSourceSchema,
   model: z.string().optional(),
-  tokenUsage: z.record(z.number()).optional(),
+  tokenUsage: z.record(z.string(), z.number()).optional(),
   drafts: z.array(persistedPrTestDraftSchema),
   createdAt: z.string(),
   updatedAt: z.string()
